@@ -9,7 +9,12 @@ app.use(express.urlencoded({ extended: false }));
 
 let dates = [];
 
-let diaries = [];
+let diaries = [
+    { date: '2024-05-28', emotion: '화나요', weather: '비' },
+    { date: '2024-05-07', emotion: '슬퍼요', weather: '맑음' },
+    { date: '2024-05-07', emotion: '행복해요', weather: '맑음' },
+    { date: '2024-05-07', emotion: '행복해요', weather: '흐림' } // dummy data
+];
 /*
     date: '2024-05-05',
     weather : '',
@@ -25,6 +30,24 @@ app.get('/diary', (req, res) => {
     res.send(diaries);
     console.log('success to get')
 });
+
+app.get('/count_emotions', (req, res) => {
+    const emotionCounts = {};
+    diaries.forEach(diary => {
+        const emotion = diary.emotion;
+        console.log("Emotion: ", emotion);
+        if (emotionCounts[emotion]) {
+            emotionCounts[emotion]++;
+        } else {
+            emotionCounts[emotion] = 1;
+        }
+        });
+    
+        // JSON.stringify()를 사용하여 객체를 JSON 문자열로 변환하여 보냄
+    res.send(JSON.stringify(emotionCounts));
+    console.log(emotionCounts);
+});
+
 
 app.post('/write', (req, res) => {
     const date = req.body.date;

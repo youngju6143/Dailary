@@ -27,6 +27,9 @@ class PageWidget extends StatefulWidget {
 
 class PageWidgetState extends State<PageWidget> {
   final PageController pageController = PageController();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey(); // Scaffold 상태를 관리하기 위한 키
+  Map<String, int> emotionCounts = {};
+  final ApiService apiService = ApiService();
   int selectedIndex = 0;
 
   final List<Widget> options = <Widget>[
@@ -47,7 +50,14 @@ class PageWidgetState extends State<PageWidget> {
 
   @override
   Widget build(BuildContext context) {
+    Future<void> fetchEmotionCount() async {
+      final Map<String, int> counts = await apiService.fetchEmotionCounts();
+      setState(() {
+        emotionCounts = counts;
+      });
+  }
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Padding(
           padding: EdgeInsets.only(left: 30.0),
@@ -60,10 +70,50 @@ class PageWidgetState extends State<PageWidget> {
           IconButton(
             icon: const Icon(Icons.menu),
             onPressed: () {
-              print('메뉴버튼 눌림');
+              fetchEmotionCount();
+              _scaffoldKey.currentState!.openEndDrawer();
+              print(emotionCounts);
             },
           )
         ],
+      ),
+      endDrawer: Drawer( // 사이드바 구현
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: Text('메뉴'),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+            ),
+            EmotionListItem(
+              iconData: const IconData(0xf584, fontFamily: 'Emotion'),
+              count: emotionCounts['행복해요'] ?? 0,
+              color: const Color.fromARGB(255, 255, 119, 164),
+            ),
+            EmotionListItem(
+              iconData: const IconData(0xf5b8, fontFamily: 'Emotion'),
+              count: emotionCounts['좋아요'] ?? 0,
+              color: Color.fromARGB(255, 255, 203, 119),
+            ),
+            EmotionListItem(
+              iconData: const IconData(0xf584, fontFamily: 'Emotion'),
+              count: emotionCounts['그럭저럭'] ?? 0,
+              color: Color.fromARGB(255, 107, 203, 129),
+            ),
+            EmotionListItem(
+              iconData: const IconData(0xf5b3, fontFamily: 'Emotion'),
+              count: emotionCounts['슬퍼요'] ?? 0,
+              color: const Color.fromARGB(255, 119, 196, 255),
+            ),
+            EmotionListItem(
+              iconData: const IconData(0xf556, fontFamily: 'Emotion'),
+              count: emotionCounts['화나요'] ?? 0,
+              color: const Color.fromARGB(255, 255, 74, 74),
+            ),
+          ],
+        ),
       ),
       body: PageView(
           controller: pageController,
@@ -110,6 +160,29 @@ class PageWidgetState extends State<PageWidget> {
             ),
           ],
         ),
+    );
+  }
+}
+
+class EmotionListItem extends StatelessWidget {
+  final IconData iconData;
+  final int count;
+  final Color color;
+
+  EmotionListItem({
+    required this.iconData,
+    required this.count,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(
+        iconData,
+        color: color,
+      ),
+      title: Text('$count'),
     );
   }
 }
@@ -167,6 +240,7 @@ class _DailyWidgetState extends State<DailyWidget> {
   }
 }
 
+
 class CalendarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -187,6 +261,7 @@ class CalendarWidget extends StatelessWidget {
   }
 }
 
+
 class ApiService {
   final String baseUrl = "http://localhost:8080";
 
@@ -203,6 +278,18 @@ class ApiService {
     } catch (err) {
       print('에러났다!! $err');
       return [];
+    }
+  }
+  Future<Map<String, int>> fetchEmotionCounts() async {
+    try {
+      final res = await http.get(Uri.parse(baseUrl + '/count_emotions'));
+      final Map<String, dynamic> jsonData = jsonDecode(res.body);
+      final Map<String, int> emotionCounts = Map<String, int>.from(jsonData);
+      print(emotionCounts);
+      return emotionCounts;
+    } catch (err) {
+      print('에러났다!! $err');
+      return {};
     }
   }
 }
