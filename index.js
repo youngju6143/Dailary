@@ -149,6 +149,7 @@ app.post('/calendar', (req, res) => {
 
 })
 
+// 일정 수정
 app.put('/calendar/:calendarId', (req, res) => {
     const calendarId = req.params.calendarId;
     const {date, startTime, endTime, text} = req.body;
@@ -168,6 +169,20 @@ app.put('/calendar/:calendarId', (req, res) => {
         res.status(404).json({ message: '일정을 찾을 수 없습니다.' });
     }
 })
+
+//일정 삭제
+app.delete('/calendar/:calendarId', (req, res) => {
+    const calendarId = req.params.calendarId;
+
+    const index = calendars.findIndex(calendar => calendar.calendarId === calendarId);
+    if (index !== -1) {
+        console.log('일정 삭제 delete API 연결 성공', diaries);
+        res.json({ date: calendars[index].date});
+        calendars.splice(index, 1); // 배열에서 해당 일기를 삭제
+    } else {
+        res.status(404).json({ message: '해당 ID를 가진 일정을 찾을 수 없습니다.' });
+    }
+});
 
 app.listen(8080, function () {
  console.log('listening on 8080')

@@ -149,6 +149,13 @@ class CalendarWidgetState extends State<CalendarWidget> {
                               );
                             },
                           ),
+                          IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () {
+                              apiService.deleteCalendar(item['calendarId']); // 일기 삭제 함수 호출
+                              setState(() {});
+                            },
+                          ),
                         ] 
                       );
                     },
@@ -231,5 +238,13 @@ class ApiService {
     }
   }
 
+  Future<void> deleteCalendar(String calendarId) async {
+    try {
+      final res = await http.delete(Uri.parse(baseUrl + '/calendar/$calendarId'));
+      print('삭제 성공!!');
+    } catch (err) {
+      print(err);
+    }
+  }
 
 }
