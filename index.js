@@ -3,19 +3,17 @@ const bodyParser = require('body-parser');
 const app = express();
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
+const { HttpStatusCode } = require('axios');
 require("dotenv").config();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-// const configuration = {
-//   apiKey: OPENAI_API_KEY,
-// };
-// const openai = new OpenAIApi(configuration);
-
-
+const users = new Map();
 
 let diaries = [
     { diaryId: 1, date: '2024-05-28', emotion: '화나요', weather: '비', content: '오늘은 정말 기쁜 하루였다. 왜냐하면 기뻤기 때문이다 ㅎㅎ 야호야호 테스트 중입니당~!\n 안녕하세요~!'},
@@ -37,6 +35,40 @@ let calendars = [
 app.get('/', (req, res) => {
     res.send('Hello, server!');
 });
+
+// 회원가입 엔드포인트
+app.post('/signup', (req, res) => {
+  const { username, password } = req.body;
+  if (users.has(username)) {
+    res.status(400).json({ 
+        success: 'false',
+        code: 400,
+        error: '이미 존재하는 사용자 이름입니다.' });
+  } else {
+    users.set(username, password);
+    res.status(201).json({
+        success: 'true',
+        code: 201,
+        message: '회원가입이 성공적으로 완료되었습니다.' });
+  }
+});
+
+// 로그인 엔드포인트
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  if (!users.has(username) || users.get(username) !== password) {
+    res.status(401).json({ 
+        success: 'false',
+        code: 401,
+        error: '존재하지 않는 유저이거나 비밀번호가 일치하지 않습니다.' });
+  } else {
+    res.status(200).json({ 
+        success: 'true',
+        code: 200,
+        message: '로그인에 성공하였습니다.' });
+  }
+});
+
 
 // 일기 조회
 app.get('/diary', (req, res) => {
@@ -177,10 +209,19 @@ app.delete('/calendar/:calendarId', (req, res) => {
     const index = calendars.findIndex(calendar => calendar.calendarId === calendarId);
     if (index !== -1) {
         console.log('일정 삭제 delete API 연결 성공', diaries);
-        res.json({ date: calendars[index].date});
+        res.json({ 
+            success: 'true',
+            code: 200,
+            message: '일정이 성공적으로 삭제되었습니다',
+            date: calendars[index].date
+        });
         calendars.splice(index, 1); // 배열에서 해당 일기를 삭제
     } else {
-        res.status(404).json({ message: '해당 ID를 가진 일정을 찾을 수 없습니다.' });
+        res.status(404).json({ 
+            success: 'false',
+            code: 404,
+            message: '해당 ID를 가진 일정을 찾을 수 없습니다.' 
+        });
     }
 });
 
