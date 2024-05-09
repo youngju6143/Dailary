@@ -251,8 +251,10 @@ class _DailyWidgetState extends State<DailyWidget> {
                     IconButton(
                       icon: Icon(Icons.delete),
                       onPressed: () {
-                        setState(() {});
-                        apiService.deleteDiary(diaryId); // 일기 삭제 함수 호출
+                        apiService.deleteDiary(diaryId);
+                        setState(() {
+                          diaryList.removeAt(index); // 일기 삭제 함수 호출
+                        });
                       },
                     ),
                   ],

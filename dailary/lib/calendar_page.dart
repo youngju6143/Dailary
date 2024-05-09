@@ -28,6 +28,8 @@ class CalendarWidgetState extends State<CalendarWidget> {
   late TimeOfDay _selectedEndTime;
   late TextEditingController _textEditingController;
 
+  late String tmp = '';
+
   DateTime selectedDay = DateTime(
     DateTime.now().year,
     DateTime.now().month,
@@ -153,7 +155,9 @@ class CalendarWidgetState extends State<CalendarWidget> {
                             icon: Icon(Icons.delete),
                             onPressed: () {
                               apiService.deleteCalendar(item['calendarId']); // 일기 삭제 함수 호출
-                              setState(() {});
+                              setState(() {
+                                calendars.removeAt(index);
+                              });
                             },
                           ),
                         ] 
