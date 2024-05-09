@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dailary/calendar_page.dart';
 import 'package:dailary/edit_diary.dart';
+import 'package:dailary/auth_screen.dart';
 import 'package:dailary/write_diary.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -121,6 +122,13 @@ class PageWidgetState extends State<PageWidget> {
               count: emotionCounts['화나요'] ?? 0,
               color: const Color.fromARGB(255, 255, 74, 74),
             ),
+            ElevatedButton(onPressed: () {
+              Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AuthScreen()),
+            );
+            }
+            , child: Text('로그아웃'))
           ],
         ),
       ),
@@ -146,7 +154,14 @@ class PageWidgetState extends State<PageWidget> {
                       size: 38,
                     ),
                     label: '',
-                  )
+                  ),
+                   BottomNavigationBarItem(
+                    icon: ImageIcon(
+                      AssetImage('assets/imgs/diary_unchoose.png'),
+                      size: 38,
+                    ),
+                    label: '',
+                  ),
                 ],
                 currentIndex: selectedIndex,
                 selectedItemColor: const Color(0xFFFFC7D9),

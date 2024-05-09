@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dailary/calendar_modal.dart';
 import 'package:dailary/edit_calender_modal.dart';
+import 'package:dailary/auth_screen.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -121,7 +122,7 @@ class CalendarWidgetState extends State<CalendarWidget> {
                 ),
                 SizedBox(height: 10),
                 Container(
-                  height: 170,
+                  height: 100,
                   child: ListView.builder(
                     itemCount: calendars.length,
                     itemBuilder: (context, index) {
@@ -245,7 +246,10 @@ class ApiService {
   Future<void> deleteCalendar(String calendarId) async {
     try {
       final res = await http.delete(Uri.parse(baseUrl + '/calendar/$calendarId'));
-      print('삭제 성공!!');
+      final dynamic decodedData = json.decode(res.body);
+      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      final prettyString = encoder.convert(decodedData);
+      print(prettyString); // 예쁘게 형식화된 JSON 데이터 출력
     } catch (err) {
       print(err);
     }
