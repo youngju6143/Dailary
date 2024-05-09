@@ -197,6 +197,7 @@ class ApiService {
       }
       final List<dynamic> jsonList = jsonDecode(res.body);
       final List<Map<String, String>> calendars= jsonList.map((entry) => {
+        'calendarId': entry['calendarId'].toString(),
         'date': entry['date'].toString(),
         'startTime': entry['startTime'].toString(),
         'endTime': entry['endTime'].toString(),

@@ -142,6 +142,7 @@ app.post('/calendar', (req, res) => {
         endTime: endTime, 
         text: text
     }
+    console.log(calendarId);
     calendars.push(newData);
     res.json(calendars);
     console.log('일정 작성 post API 연결 성공', req.body);
