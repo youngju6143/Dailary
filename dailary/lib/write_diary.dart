@@ -14,16 +14,26 @@ class WriteDaily extends StatefulWidget {
 class MyWriteDailyState extends State<WriteDaily> {
   final ApiService apiService = ApiService();
   DateTime selectedDate = DateTime.now();
-  String selectedEmotion = '행복해요';
-  String selectedWeather = '맑음';
-  
+  String selectedEmotion = '';
+  String selectedWeather = '';
+  String content = '';
+  String _imageUrl = '';
+
+  final TextEditingController textEditingController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('일기 작성하기'),
+          title: const Text('일기 작성하기'),
           centerTitle: false,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop(); // 뒤로가기 버튼 클릭 시 현재 화면을 종료하여 이전 화면으로 이동
+            },
+  ),
         ),
         body: Center(
           child: Column(
@@ -31,7 +41,7 @@ class MyWriteDailyState extends State<WriteDaily> {
             children: [
               Text(
                 '오늘의 날짜: ${selectedDate.year}-${selectedDate.month}-${selectedDate.day}',
-                style: TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 20),
               ),
               SizedBox(height: 20),
               Row(
@@ -137,9 +147,18 @@ class MyWriteDailyState extends State<WriteDaily> {
                 child: Text('날짜 선택'),
               ),
               SizedBox(height: 20),
+              TextField(
+                  controller: textEditingController,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                    labelText: '내용',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
               ElevatedButton(
                 onPressed: () {
-                  apiService.postDiary(selectedDate, selectedEmotion, selectedWeather);
+                  content = textEditingController.text;
+                  apiService.postDiary(selectedDate, selectedEmotion, selectedWeather, content);
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyApp()));
                 },
                 child: Text('일기 작성 완료'),
@@ -214,18 +233,20 @@ class WeatherButton extends StatelessWidget {
 class ApiService {
   final String baseUrl = "http://localhost:8080";
 
-  Future<void> postDiary(DateTime selectedDate, String selectedEmotion, String selectedWeather) async {
+  Future<void> postDiary(DateTime selectedDate, String selectedEmotion, String selectedWeather, String content) async {
     try {
       final res = await http.post(
-        Uri.parse(baseUrl + '/write'), 
+        Uri.parse(baseUrl + '/diary_write'), 
         body:{
           'date': selectedDate.toString(),
           'emotion': selectedEmotion,
-          'weather': selectedWeather
+          'weather': selectedWeather,
+          'content': content
         }
       );
     } catch (err) {
       print(err);
     }
   }
+
 }
