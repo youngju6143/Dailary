@@ -16,6 +16,7 @@ class EditDiary extends StatefulWidget {
 class EditDiaryState extends State<EditDiary> {
   final ApiService apiService = ApiService();
   late String diaryId;
+  late String userId;
   late DateTime selectedDate;
   late String selectedEmotion;
   late String selectedWeather;
@@ -27,6 +28,7 @@ class EditDiaryState extends State<EditDiary> {
     super.initState();
     // 일기에서 받은 날짜를 파싱하여 DateTime으로 변환합니다.
     diaryId = widget.diary['diaryId'] ?? '';
+    userId = widget.diary['userId'] ?? '';
     selectedDate = DateTime.parse(widget.diary['date']!);
     selectedEmotion = widget.diary['emotion'] ?? '';
     selectedWeather = widget.diary['weather'] ?? '';

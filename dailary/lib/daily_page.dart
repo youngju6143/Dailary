@@ -11,6 +11,12 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 
 class DailyWidget extends StatefulWidget {
+  final String userId;
+
+  const DailyWidget({
+    required this.userId
+  });
+
   @override
   _DailyWidgetState createState() => _DailyWidgetState();
 }
@@ -19,15 +25,17 @@ class _DailyWidgetState extends State<DailyWidget> {
   final ApiService apiService = ApiService();
   List<Map<String, String>> diaryList = [];
   String imageUrl = '';
+  late String _userId;
 
   @override
   void initState() {
     super.initState();
+    _userId = widget.userId;
     fetchDiaryDates();
   }
 
-  Future<void> fetchDiaryDates() async {
-    final List<Map<String, String>> diaries = await apiService.fetchDiary();
+  Future<void> fetchDiaryDates() async {  
+    final List<Map<String, String>> diaries = await apiService.fetchDiary(_userId);
     setState(() {
       diaryList = diaries;
     });
@@ -99,7 +107,7 @@ class _DailyWidgetState extends State<DailyWidget> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => WriteDaily()),
+              MaterialPageRoute(builder: (context) => WriteDaily(userId: _userId!,)),
             );
           },
         ),
@@ -107,15 +115,17 @@ class _DailyWidgetState extends State<DailyWidget> {
   }
 }
 
+
 class ApiService {
   final String baseUrl = "http://localhost:8080";
 
-  Future<List<Map<String, String>>> fetchDiary() async {
+  Future<List<Map<String, String>>> fetchDiary(String userId) async {
     try {
-      final res = await http.get(Uri.parse(baseUrl + '/diary'));
-      final List<dynamic> jsonList = jsonDecode(res.body);
+      final res = await http.get(Uri.parse(baseUrl + '/diary/$userId'));
+      final List<dynamic> jsonList = jsonDecode(res.body)['data'];
       final List<Map<String, String>> diaries = jsonList.map((entry) => {
         'diaryId': entry['diaryId'].toString(),
+        'userId': entry['userId'].toString(),
         'date': entry['date'].toString(),
         'emotion': entry['emotion'].toString(),
         'weather': entry['weather'].toString(),
@@ -128,24 +138,11 @@ class ApiService {
       return [];
     }
   }
-  
-  Future<Map<String, int>> fetchEmotionCounts() async {
-    try {
-      final res = await http.get(Uri.parse(baseUrl + '/sidebar'));
-      final Map<String, dynamic> jsonData = jsonDecode(res.body);
-      final Map<String, int> emotionCounts = Map<String, int>.from(jsonData);
-      return emotionCounts;
-    } catch (err) {
-      print('에러났다!! $err');
-      return {};
-    }
-  }
 
   Future<void> deleteDiary(String diaryId) async {
     try {
       final res = await http.delete(Uri.parse(baseUrl + '/diary/$diaryId'));
       print('삭제 성공!!');
-      await fetchDiary(); 
     } catch (err) {
       print(err);
     }

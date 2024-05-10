@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:dailary/calendar_modal.dart';
 import 'package:dailary/edit_calender_modal.dart';
-import 'package:dailary/auth_screen.dart';
+import 'package:dailary/page_widget.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -207,7 +207,7 @@ class ApiService {
       if (res.statusCode == 404) {
         print('에러남 : ${res.body}');
       }
-      final List<dynamic> jsonList = jsonDecode(res.body);
+      final List<dynamic> jsonList = jsonDecode(res.body)['data'];
       final List<Map<String, String>> calendars= jsonList.map((entry) => {
         'calendarId': entry['calendarId'].toString(),
         'date': entry['date'].toString(),
@@ -237,7 +237,7 @@ class ApiService {
           'text': text
         }
       );
-      print('캘린더 작성한 거 잘 갔음');
+      print(res.body);
     } catch (err) {
       print(err);
     }

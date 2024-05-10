@@ -1,11 +1,19 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dailary/main.dart';
+import 'package:dailary/page_widget.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 class WriteDaily extends StatefulWidget {
-  const WriteDaily();
+  final String userId;
+
+  const WriteDaily({
+    required this.userId
+  });
 
   @override
   MyWriteDailyState createState() => MyWriteDailyState();
@@ -18,8 +26,30 @@ class MyWriteDailyState extends State<WriteDaily> {
   String selectedWeather = '';
   String content = '';
   String _imageUrl = '';
+  String _userId = '';
 
   final TextEditingController textEditingController = TextEditingController();
+
+  final ImagePicker picker = ImagePicker();
+  XFile? _image; // 카메라로 촬영한 이미지를 저장할 변수
+  List<XFile?> images = []; // 가져온 사진들을 보여주기 위한 변수
+
+  Future getImage(ImageSource imageSource) async {
+    //pickedFile에 ImagePicker로 가져온 이미지가 담긴다.
+    final XFile? pickedFile = await picker.pickImage(source: imageSource);
+    if (pickedFile != null) {
+      setState(() {
+        _image = XFile(pickedFile.path); //가져온 이미지를 _image에 저장
+        print(pickedFile.path);
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _userId = widget.userId;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +72,12 @@ class MyWriteDailyState extends State<WriteDaily> {
               Text(
                 '오늘의 날짜: ${selectedDate.year}-${selectedDate.month}-${selectedDate.day}',
                 style: const TextStyle(fontSize: 20),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _selectDate(context);
+                },
+                child: Text('날짜 선택'),
               ),
               SizedBox(height: 20),
               Row(
@@ -140,13 +176,44 @@ class MyWriteDailyState extends State<WriteDaily> {
                   ),
                 ],
               ),
-              ElevatedButton(
-                onPressed: () {
-                  _selectDate(context);
-                },
-                child: Text('날짜 선택'),
-              ),
               SizedBox(height: 20),
+              GridView.builder(
+                shrinkWrap: true,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 4.0,
+                  mainAxisSpacing: 4.0,
+                ),
+                itemCount: images.length,
+                itemBuilder: (context, index) {
+                  return _image != null 
+                    ? Container(
+                      width: 300,
+                      height: 300,
+                      child: Image.file(File(_image!.path)),
+                    ) : Container(
+                      width: 300,
+                      height: 300,
+                      color: Colors.grey,
+                    );
+                },
+              ),
+               _image != null 
+                ? Container(
+                  width: 300,
+                  height: 300,
+                  child: Image.file(File(_image!.path)),
+                ) : Container(
+                  width: 300,
+                  height: 300,
+                  color: Colors.grey,
+                ),
+              IconButton(
+                onPressed: () {
+                  getImage(ImageSource.gallery);
+                },
+                icon: Icon(Icons.add_a_photo, size: 30, color: Colors.black)
+            ),
               TextField(
                   controller: textEditingController,
                   maxLines: 5,
@@ -158,8 +225,8 @@ class MyWriteDailyState extends State<WriteDaily> {
               ElevatedButton(
                 onPressed: () {
                   content = textEditingController.text;
-                  apiService.postDiary(selectedDate, selectedEmotion, selectedWeather, content);
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyApp()));
+                  apiService.postDiary(_userId, selectedDate, selectedEmotion, selectedWeather, content);
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: _userId,)));
                 },
                 child: Text('일기 작성 완료'),
               ),
@@ -233,11 +300,12 @@ class WeatherButton extends StatelessWidget {
 class ApiService {
   final String baseUrl = "http://localhost:8080";
 
-  Future<void> postDiary(DateTime selectedDate, String selectedEmotion, String selectedWeather, String content) async {
+  Future<void> postDiary(String userId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content) async {
     try {
       final res = await http.post(
         Uri.parse(baseUrl + '/diary_write'), 
         body:{
+          'userId' : userId,
           'date': selectedDate.toString(),
           'emotion': selectedEmotion,
           'weather': selectedWeather,
@@ -248,5 +316,4 @@ class ApiService {
       print(err);
     }
   }
-
 }

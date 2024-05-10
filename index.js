@@ -13,8 +13,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-const users = new Map();
-
+const users = [];
 let diaries = [
     { diaryId: 1, date: '2024-05-28', emotion: '화나요', weather: '비', content: '오늘은 정말 기쁜 하루였다. 왜냐하면 기뻤기 때문이다 ㅎㅎ 야호야호 테스트 중입니당~!\n 안녕하세요~!'},
     { diaryId: 2, date: '2024-05-07', emotion: '슬퍼요', weather: '맑음', content: '오늘은 정말 기쁜 하루'},
@@ -38,16 +37,24 @@ app.get('/', (req, res) => {
 
 // 회원가입 엔드포인트
 app.post('/signup', (req, res) => {
-  const { username, password } = req.body;
-  if (users.has(username)) {
+    const userId = uuidv4();
+  const { userName, password } = req.body;
+  const existingUser = users.find(user => user.userName === userName);
+  if (existingUser) {
     res.status(400).json({ 
-        success: 'false',
+        success: false,
         code: 400,
         error: '이미 존재하는 사용자 이름입니다.' });
   } else {
-    users.set(username, password);
+    // 새로운 사용자 정보를 배열에 추가
+    const newUser = { 
+        userId: userId, 
+        userName: userName, 
+        password: password 
+    };
+    users.push(newUser);
     res.status(201).json({
-        success: 'true',
+        success: true,
         code: 201,
         message: '회원가입이 성공적으로 완료되었습니다.' });
   }
@@ -55,24 +62,55 @@ app.post('/signup', (req, res) => {
 
 // 로그인 엔드포인트
 app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  if (!users.has(username) || users.get(username) !== password) {
-    res.status(401).json({ 
-        success: 'false',
-        code: 401,
-        error: '존재하지 않는 유저이거나 비밀번호가 일치하지 않습니다.' });
+    console.log(users);
+  const { userName, password } = req.body;
+  const user = users.find(user => user.userName === userName && user.password === password);
+  if (user) {
+    res.status(200).json({
+      success: true,
+      code: 200,
+      message: '로그인에 성공하였습니다.',
+      userId: user.userId // 로그인한 사용자의 userId도 반환
+    });
   } else {
-    res.status(200).json({ 
-        success: 'true',
-        code: 200,
-        message: '로그인에 성공하였습니다.' });
+    res.status(401).json({
+      success: false,
+      code: 401,
+      error: '존재하지 않는 유저이거나 비밀번호가 일치하지 않습니다.'
+    });
   }
 });
 
-
+app.get('/userId')
 // 일기 조회
+app.get('/diary/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const userDiaries = diaries.filter(diary => diary.userId === userId);
+    if (userDiaries.size !== 0) {
+        res.status(200).json({ 
+            success: 'true',
+            code: 200,
+            message: '일기를 성공적으로 조회하였습니다.',
+            data: userDiaries
+        });
+    } else {
+        res.status(200).json({ 
+            success: 'true',
+            code: 200,
+            message: '일기를 성공적으로 조회하였습니다.',
+            data: []
+        });
+    }
+    console.log('일기 조회 get API 연결 성공', userDiaries);
+});
+
 app.get('/diary', (req, res) => {
-    res.send(diaries);
+    res.status(200).json({ 
+        success: 'true',
+        code: 200,
+        message: '일기를 성공적으로 조회하였습니다.',
+        data: diaries
+    });
     console.log('일기 조회 get API 연결 성공', diaries);
 });
 
@@ -97,6 +135,7 @@ app.get('/sidebar', (req, res) => {
 // 일기 작성
 app.post('/diary_write', (req, res) => {
     const diaryId = uuidv4();
+    const userId = req.body.userId;
     const date = req.body.date;
     const emotion = req.body.emotion;
     const weather = req.body.weather;
@@ -104,16 +143,31 @@ app.post('/diary_write', (req, res) => {
     
     const parsedDate = date.slice(0, 10);
 
-    const newData = {
-        diaryId: diaryId,
-        date: parsedDate,
-        emotion: emotion,
-        weather: weather,
-        content: content
-    };
-    diaries.push(newData);
-    res.json(diaries);
-    console.log('일기 작성 post API 연결 성공', req.body);
+    if (userId.length !== 0) {
+        const newData = {
+            diaryId: diaryId,
+            userId: userId,
+            date: parsedDate,
+            emotion: emotion,
+            weather: weather,
+            content: content
+        };
+        diaries.push(newData);
+        res.status(200).json({ 
+            success: 'true',
+            code: 200,
+            message: '일기를 성공적으로 작성하였습니다.',
+            data: diaries
+        });
+        console.log('일기 조회 get API 연결 성공', diaries);
+    } else {
+        res.status(404).json({ 
+            success: 'true',
+            code: 404,
+            message: 'userId가 null값입니다.',
+            data: diaries
+        });
+    }
 });
 
 // 일기 수정
@@ -134,9 +188,17 @@ app.put('/diary/:diaryId', (req, res) => {
             content: content
         };
         console.log('일기 수정 put API 연결 성공', req.body);
-        res.send({ message: '일기가 수정되었습니다.', data: diaries[index] });
+        res.send({ 
+            success: true,
+            code: 200,
+            message: '일기가 수정되었습니다.', 
+            data: diaries[index] });
     } else {
-        res.status(404).json({ message: '일기를 찾을 수 없습니다.' });
+        res.status(404).json({ 
+            success: true,
+            code: 404,
+            message: '일기를 찾을 수 없습니다.',
+            error: error });
     }
 });
 
@@ -148,9 +210,17 @@ app.delete('/diary/:diaryId', (req, res) => {
     if (index !== -1) {
         diaries.splice(index, 1); // 배열에서 해당 일기를 삭제
         console.log('일기 삭제 delete API 연결 성공', diaries);
-        res.json({ message: '일기가 삭제되었습니다.' });
+        res.status(200).json({ 
+            success: true,
+            code: 200,
+            message: '일기가 삭제되었습니다.' 
+        });
     } else {
-        res.status(404).json({ message: '해당 ID를 가진 일기를 찾을 수 없습니다.' });
+        res.status(404).json({ 
+            success: false,
+            code: 404,
+            message: '해당 ID를 가진 일기를 찾을 수 없습니다.' 
+        });
     }
 });
 
@@ -159,8 +229,22 @@ app.delete('/diary/:diaryId', (req, res) => {
 app.get('/calendar/:date', (req, res) => {
     const requestedDate = req.params.date;
     const filteredCalendars = calendars.filter(calendar => calendar.date === requestedDate);
-    res.json(filteredCalendars);
-    console.log('일정 조회 get API 연결 성공', req.body);
+    if (filteredCalendars.length > 0) {
+        res.status(200).json({ 
+            success: true,
+            code: 200,
+            message: '일정을 성공적으로 조회하였습니다.',
+            data: filteredCalendars
+        });
+        console.log('일정 조회 get API 연결 성공', req.body);
+    } else {
+        res.status(404).json({ 
+            success: false,
+            code: 404,
+            message: '일치하는 일정이 없습니다.',
+        });
+    }
+    
 });
 
 // 캘린더 일정 작성
