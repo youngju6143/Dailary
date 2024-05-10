@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -14,6 +16,7 @@ class EditCalendarModal extends StatefulWidget {
 
 class _EditCalendarModalState extends State<EditCalendarModal> {
   late String calendarId;
+  late String userId;
   late TimeOfDay startTime;
   late TimeOfDay endTime;
   late TextEditingController textEditingController;
@@ -29,6 +32,7 @@ class _EditCalendarModalState extends State<EditCalendarModal> {
     String formattedEndTime = widget.calendars['endTime'] ?? '';
 
     calendarId = widget.calendars['calendarId'] ?? '';
+    userId = widget.calendars['userId'] ?? '';
     startTime = parseTimeOfDay(formattedStartTime);
     selectedDay = DateTime.parse(widget.calendars['date']!);
     endTime = parseTimeOfDay(formattedEndTime);
@@ -110,7 +114,7 @@ class _EditCalendarModalState extends State<EditCalendarModal> {
             child: ElevatedButton(
               onPressed: () {
                 String text = textEditingController.text;
-                apiService.putCalendar(calendarId, selectedDay, startTime, endTime, text);
+                apiService.putCalendar(calendarId, userId, selectedDay, startTime, endTime, text);
                 textEditingController.clear(); // 텍스트 필드 초기화
                 Navigator.pop(context); // 바텀 시트 닫기
               },
@@ -127,7 +131,7 @@ class _EditCalendarModalState extends State<EditCalendarModal> {
 class ApiService {
   final String baseUrl = "http://localhost:8080";
 
-  Future<void> putCalendar(String calendarId, DateTime selectedDate, TimeOfDay startTime, TimeOfDay endTime, String text) async {
+  Future<void> putCalendar(String calendarId, String userId, DateTime selectedDate, TimeOfDay startTime, TimeOfDay endTime, String text) async {
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     String formattedStartTime = '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}';
     String formattedEndTime = '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
@@ -135,13 +139,17 @@ class ApiService {
       final res = await http.put(
         Uri.parse(baseUrl + '/calendar/$calendarId'), 
         body:{
-          'calendarId': calendarId, 
+          'userId': userId, 
           'date': formattedDate,
           'startTime': formattedStartTime,
           'endTime': formattedEndTime,
           'text': text
         }
       );
+      final dynamic decodedData = json.decode(res.body);
+      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      final prettyString = encoder.convert(decodedData);
+      print(prettyString);
     } catch (err) {
       print(err);
     }

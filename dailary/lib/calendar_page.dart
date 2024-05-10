@@ -9,12 +9,12 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-void main() async{
-  // await initializeDateFormatting();
-  runApp(CalendarWidget());
-}
-
 class CalendarWidget extends StatefulWidget {
+  final String userId;
+
+  const CalendarWidget({
+      required this.userId 
+  });
   @override
   CalendarWidgetState createState() => CalendarWidgetState();
 }
@@ -25,6 +25,7 @@ class CalendarWidgetState extends State<CalendarWidget> {
 
   List<dynamic> calendars = [];
 
+  late String _userId;
   late TimeOfDay _selectedStartTime;
   late TimeOfDay _selectedEndTime;
   late TextEditingController _textEditingController;
@@ -38,6 +39,7 @@ class CalendarWidgetState extends State<CalendarWidget> {
   );
 
   DateTime focusedDay = DateTime.now();
+  
 
   void initState() {
     super.initState();
@@ -45,6 +47,7 @@ class CalendarWidgetState extends State<CalendarWidget> {
     _selectedEndTime = TimeOfDay.now();
     _textEditingController = TextEditingController();
     selectedDay = DateTime.now();
+    _userId = widget.userId;
 
     // String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
 
@@ -53,7 +56,7 @@ class CalendarWidgetState extends State<CalendarWidget> {
 
   Future<void> fetchCalendars(DateTime selectedDay) async {
     final formattedDate = (DateFormat('yyyy-MM-dd').format(selectedDay)).toString();
-    final fetchedCalendars = await apiService.fetchCalendar(formattedDate);
+    final fetchedCalendars = await apiService.fetchCalendar(formattedDate, _userId);
     setState(() {
       calendars = fetchedCalendars;
     });
@@ -67,7 +70,7 @@ class CalendarWidgetState extends State<CalendarWidget> {
 
   void onSaveFunction(DateTime selectedDay, TimeOfDay startTime, TimeOfDay endTime, String text) {
     print('선택 날짜 출력 : $selectedDay');
-    apiService.postCalendar(selectedDay, _selectedStartTime, _selectedEndTime, text);
+    apiService.postCalendar(_userId, selectedDay, _selectedStartTime, _selectedEndTime, text);
   }
 
   @override
@@ -122,7 +125,7 @@ class CalendarWidgetState extends State<CalendarWidget> {
                 ),
                 SizedBox(height: 10),
                 Container(
-                  height: 100,
+                  height: 170,
                   child: ListView.builder(
                     itemCount: calendars.length,
                     itemBuilder: (context, index) {
@@ -201,21 +204,28 @@ class CalendarWidgetState extends State<CalendarWidget> {
 class ApiService {
   final String baseUrl = "http://localhost:8080";
 
-  Future<List<Map<String, String>>> fetchCalendar(String date) async {    
+  Future<List<Map<String, String>>> fetchCalendar(String date, String userId) async {    
     try {
-      final res = await http.get(Uri.parse(baseUrl + '/calendar/$date'));
+      final res = await http.get(Uri.parse(baseUrl + '/calendar/$date/$userId'));
       if (res.statusCode == 404) {
-        print('에러남 : ${res.body}');
+        final dynamic decodedData = json.decode(res.body);
+        final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+        final prettyString = encoder.convert(decodedData);
+        print(prettyString);
       }
       final List<dynamic> jsonList = jsonDecode(res.body)['data'];
       final List<Map<String, String>> calendars= jsonList.map((entry) => {
         'calendarId': entry['calendarId'].toString(),
+        'userId': entry['userId'].toString(),
         'date': entry['date'].toString(),
         'startTime': entry['startTime'].toString(),
         'endTime': entry['endTime'].toString(),
         'text': entry['text'].toString(),
       }).toList();
-      print(calendars);
+      final dynamic decodedData = json.decode(res.body);
+      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      final prettyString = encoder.convert(decodedData);
+      print(prettyString);
       return calendars;
     } catch (err) {
       print('에러났다!! $err');
@@ -223,7 +233,7 @@ class ApiService {
     }
   }
   
-  Future<void> postCalendar(DateTime selectedDate, TimeOfDay startTime, TimeOfDay endTime, String text) async { 
+  Future<void> postCalendar(String userId, DateTime selectedDate, TimeOfDay startTime, TimeOfDay endTime, String text) async { 
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     String formattedStartTime = '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}';
     String formattedEndTime = '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
@@ -231,13 +241,17 @@ class ApiService {
       final res = await http.post(
         Uri.parse(baseUrl + '/calendar'), 
         body:{
+          'userId': userId,
           'date': formattedDate.toString(),
           'startTime': formattedStartTime.toString(),
           'endTime': formattedEndTime.toString(),
           'text': text
         }
       );
-      print(res.body);
+      final dynamic decodedData = json.decode(res.body);
+      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      final prettyString = encoder.convert(decodedData);
+      print(prettyString);
     } catch (err) {
       print(err);
     }

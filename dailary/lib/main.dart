@@ -39,6 +39,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   late String userId;
+  late String userName;
 
   Future<void> _signUp() async {
     final response = await http.post(
@@ -49,9 +50,11 @@ class _AuthScreenState extends State<AuthScreen> {
         'password': _passwordController.text,
       }),
     );
-
-    final responseData = json.decode(response.body);
-    print(responseData);
+    userName = _usernameController.text;
+    final dynamic decodedData = json.decode(response.body);
+    final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+    final prettyString = encoder.convert(decodedData);
+    print(prettyString);
   }
 
   Future<void> _login() async {
@@ -63,12 +66,15 @@ class _AuthScreenState extends State<AuthScreen> {
         'password': _passwordController.text,
       }),
     );
-
+    userName = _usernameController.text;
     final responseData = json.decode(response.body);
     userId = responseData['userId'];
-    print(responseData);
+    final dynamic decodedData = json.decode(response.body);
+    final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+    final prettyString = encoder.convert(decodedData);
+    print(prettyString);
     if (response.statusCode == 200)
-      Navigator.push(context, MaterialPageRoute(builder: (context) => PageWidget(userId: userId)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PageWidget(userId: userId, userName: userName)));
     
   }
 

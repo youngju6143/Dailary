@@ -10,9 +10,11 @@ import 'package:image_picker/image_picker.dart';
 
 class WriteDaily extends StatefulWidget {
   final String userId;
+  final String userName;
 
   const WriteDaily({
-    required this.userId
+    required this.userId,
+    required this.userName
   });
 
   @override
@@ -27,6 +29,7 @@ class MyWriteDailyState extends State<WriteDaily> {
   String content = '';
   String _imageUrl = '';
   String _userId = '';
+  String _userName = '';
 
   final TextEditingController textEditingController = TextEditingController();
 
@@ -49,6 +52,7 @@ class MyWriteDailyState extends State<WriteDaily> {
   void initState() {
     super.initState();
     _userId = widget.userId;
+    _userName = widget.userName;
   }
 
   @override
@@ -177,37 +181,37 @@ class MyWriteDailyState extends State<WriteDaily> {
                 ],
               ),
               SizedBox(height: 20),
-              GridView.builder(
-                shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 4.0,
-                  mainAxisSpacing: 4.0,
-                ),
-                itemCount: images.length,
-                itemBuilder: (context, index) {
-                  return _image != null 
-                    ? Container(
-                      width: 300,
-                      height: 300,
-                      child: Image.file(File(_image!.path)),
-                    ) : Container(
-                      width: 300,
-                      height: 300,
-                      color: Colors.grey,
-                    );
-                },
-              ),
-               _image != null 
-                ? Container(
-                  width: 300,
-                  height: 300,
-                  child: Image.file(File(_image!.path)),
-                ) : Container(
-                  width: 300,
-                  height: 300,
-                  color: Colors.grey,
-                ),
+              // GridView.builder(
+              //   shrinkWrap: true,
+              //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              //     crossAxisCount: 2,
+              //     crossAxisSpacing: 4.0,
+              //     mainAxisSpacing: 4.0,
+              //   ),
+              //   itemCount: images.length,
+              //   itemBuilder: (context, index) {
+              //     return _image != null 
+              //       ? Container(
+              //         width: 300,
+              //         height: 300,
+              //         child: Image.file(File(_image!.path)),
+              //       ) : Container(
+              //         width: 300,
+              //         height: 300,
+              //         color: Colors.grey,
+              //       );
+              //   },
+              // ),
+              //  _image != null 
+              //   ? Container(
+              //     width: 300,
+              //     height: 300,
+              //     child: Image.file(File(_image!.path)),
+              //   ) : Container(
+              //     width: 300,
+              //     height: 300,
+              //     color: Colors.grey,
+              //   ),
               IconButton(
                 onPressed: () {
                   getImage(ImageSource.gallery);
@@ -226,7 +230,7 @@ class MyWriteDailyState extends State<WriteDaily> {
                 onPressed: () {
                   content = textEditingController.text;
                   apiService.postDiary(_userId, selectedDate, selectedEmotion, selectedWeather, content);
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: _userId,)));
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: _userId, userName: _userName)));
                 },
                 child: Text('일기 작성 완료'),
               ),
@@ -312,6 +316,10 @@ class ApiService {
           'content': content
         }
       );
+      final dynamic decodedData = json.decode(res.body);
+      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      final prettyString = encoder.convert(decodedData);
+      print(prettyString);
     } catch (err) {
       print(err);
     }

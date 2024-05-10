@@ -1,13 +1,18 @@
 import 'dart:convert';
 
 import 'package:dailary/main.dart';
+import 'package:dailary/page_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class EditDiary extends StatefulWidget {
   final Map<String, String> diary;
+  final String userName;
 
-  EditDiary({required this.diary});
+  EditDiary({
+    required this.diary,
+    required this.userName
+  });
 
   @override
   EditDiaryState createState() => EditDiaryState();
@@ -17,6 +22,7 @@ class EditDiaryState extends State<EditDiary> {
   final ApiService apiService = ApiService();
   late String diaryId;
   late String userId;
+  late String _userName;
   late DateTime selectedDate;
   late String selectedEmotion;
   late String selectedWeather;
@@ -33,7 +39,7 @@ class EditDiaryState extends State<EditDiary> {
     selectedEmotion = widget.diary['emotion'] ?? '';
     selectedWeather = widget.diary['weather'] ?? '';
     content = widget.diary['content'] ?? '';
-
+    _userName = widget.userName;
     textEditingController = TextEditingController(text: content);
 
   }
@@ -175,8 +181,8 @@ class EditDiaryState extends State<EditDiary> {
               ElevatedButton(
                 onPressed: () {
                   content = textEditingController.text;
-                  apiService.putDiary(diaryId, selectedDate, selectedEmotion, selectedWeather, content);
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyApp()));
+                  apiService.putDiary(diaryId, userId, selectedDate, selectedEmotion, selectedWeather, content);
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: userId, userName: _userName,)));
                 },
                 child: Text('일기 작성 완료'),
               ),
@@ -250,18 +256,22 @@ class WeatherButton extends StatelessWidget {
 class ApiService {
   final String baseUrl = "http://localhost:8080";
 
-  Future<void> putDiary(String diaryId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content) async {
+  Future<void> putDiary(String diaryId, String userId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content) async {
     try {
       final res = await http.put(
         Uri.parse(baseUrl + '/diary/$diaryId'), 
         body:{
-          'diaryId': diaryId, 
+          'userId': userId,
           'date': selectedDate.toString(),
           'emotion': selectedEmotion,
           'weather': selectedWeather,
           'content': content
         }
       );
+      final dynamic decodedData = json.decode(res.body);
+      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      final prettyString = encoder.convert(decodedData);
+      print(prettyString);
     } catch (err) {
       print(err);
     }

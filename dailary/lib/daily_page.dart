@@ -12,9 +12,11 @@ import 'package:day_night_time_picker/day_night_time_picker.dart';
 
 class DailyWidget extends StatefulWidget {
   final String userId;
+  final String userName;
 
   const DailyWidget({
-    required this.userId
+    required this.userId,
+    required this.userName
   });
 
   @override
@@ -26,11 +28,13 @@ class _DailyWidgetState extends State<DailyWidget> {
   List<Map<String, String>> diaryList = [];
   String imageUrl = '';
   late String _userId;
+  late String _userName;
 
   @override
   void initState() {
     super.initState();
     _userId = widget.userId;
+    _userName = widget.userName;
     fetchDiaryDates();
   }
 
@@ -78,7 +82,7 @@ class _DailyWidgetState extends State<DailyWidget> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EditDiary(diary: diaryList[index]),
+                            builder: (context) => EditDiary(diary: diaryList[index], userName: _userName,),
                           ),
                         );
                       },
@@ -107,7 +111,7 @@ class _DailyWidgetState extends State<DailyWidget> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => WriteDaily(userId: _userId!,)),
+              MaterialPageRoute(builder: (context) => WriteDaily(userId: _userId!, userName: _userName,)),
             );
           },
         ),
@@ -131,7 +135,10 @@ class ApiService {
         'weather': entry['weather'].toString(),
         'content': entry['content'].toString(),
       }).toList();
-      print(diaries);
+      final dynamic decodedData = json.decode(res.body);
+      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      final prettyString = encoder.convert(decodedData);
+      print(prettyString);
       return diaries;
     } catch (err) {
       print('에러났다!! $err');
@@ -142,7 +149,10 @@ class ApiService {
   Future<void> deleteDiary(String diaryId) async {
     try {
       final res = await http.delete(Uri.parse(baseUrl + '/diary/$diaryId'));
-      print('삭제 성공!!');
+      final dynamic decodedData = json.decode(res.body);
+      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      final prettyString = encoder.convert(decodedData);
+      print(prettyString);
     } catch (err) {
       print(err);
     }

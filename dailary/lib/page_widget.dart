@@ -8,9 +8,12 @@ import 'package:http/http.dart' as http;
 
 class PageWidget extends StatefulWidget {  
   final String userId;
+  final String userName;
+
 
   const PageWidget({
-    required this.userId
+    required this.userId,
+    required this.userName
   });
   
   @override
@@ -24,16 +27,17 @@ class PageWidgetState extends State<PageWidget> {
   Map<String, int> emotionCounts = {};
   int selectedIndex = 0;
   late String _userId = '';
+  late String _userName = '';
 
   @override
   void initState() {
     super.initState();
     _userId = widget.userId;
-    print('userId : $_userId');
+    _userName = widget.userName;
 
     options.addAll([
-      DailyWidget(userId: _userId),
-      CalendarWidget(),
+      DailyWidget(userId: _userId, userName: _userName),
+      CalendarWidget(userId: _userId),
     ]);
   }
   final List<Widget> options = <Widget>[];
@@ -57,7 +61,7 @@ class PageWidgetState extends State<PageWidget> {
   @override
   Widget build(BuildContext context) {
     Future<void> fetchEmotionCount() async {
-      final Map<String, int> counts = await apiService.fetchEmotionCounts();
+      final Map<String, int> counts = await apiService.fetchEmotionCounts(_userId);
       setState(() {
         emotionCounts = counts;
       });
@@ -93,6 +97,8 @@ class PageWidgetState extends State<PageWidget> {
                 color: Colors.blue,
               ),
             ),
+            Divider(),
+            Text('$_userName'),
             EmotionListItem(
               iconData: const IconData(0xf584, fontFamily: 'Emotion'),
               count: emotionCounts['행복해요'] ?? 0,
@@ -151,13 +157,6 @@ class PageWidgetState extends State<PageWidget> {
                     ),
                     label: '',
                   ),
-                   BottomNavigationBarItem(
-                    icon: ImageIcon(
-                      AssetImage('assets/imgs/diary_unchoose.png'),
-                      size: 38,
-                    ),
-                    label: '',
-                  ),
                 ],
                 currentIndex: selectedIndex,
                 selectedItemColor: const Color(0xFFFFC7D9),
@@ -197,11 +196,16 @@ class EmotionListItem extends StatelessWidget {
 class ApiService {
   final String baseUrl = "http://localhost:8080";
   
-  Future<Map<String, int>> fetchEmotionCounts() async {
+  Future<Map<String, int>> fetchEmotionCounts(String userId) async {
     try {
-      final res = await http.get(Uri.parse(baseUrl + '/sidebar'));
+      final res = await http.get(Uri.parse(baseUrl + '/sidebar/$userId'));
       final Map<String, dynamic> jsonData = jsonDecode(res.body);
       final Map<String, int> emotionCounts = Map<String, int>.from(jsonData);
+      
+      final dynamic decodedData = json.decode(res.body);
+      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      final prettyString = encoder.convert(decodedData);
+      print(prettyString);
       return emotionCounts;
     } catch (err) {
       print('에러났다!! $err');
