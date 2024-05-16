@@ -31,19 +31,24 @@ class MyWriteDailyState extends State<WriteDaily> {
   String _userId = '';
   String _userName = '';
 
+  final String serverIp = '192.168.219.108';
+
   final TextEditingController textEditingController = TextEditingController();
 
-  final ImagePicker picker = ImagePicker();
-  XFile? _image; // 카메라로 촬영한 이미지를 저장할 변수
-  List<XFile?> images = []; // 가져온 사진들을 보여주기 위한 변수
+  final ImagePicker _picker = ImagePicker();
+  // XFile? _image; // 카메라로 촬영한 이미지를 저장할 변수
+  XFile? _pickedImg; // 가져온 사진들을 보여주기 위한 변수
 
   Future getImage(ImageSource imageSource) async {
     //pickedFile에 ImagePicker로 가져온 이미지가 담긴다.
-    final XFile? pickedFile = await picker.pickImage(source: imageSource);
-    if (pickedFile != null) {
+    final XFile? _image = await _picker.pickImage(
+      source: imageSource,
+      imageQuality: 50,
+    );
+    if (_image != null) {
       setState(() {
-        _image = XFile(pickedFile.path); //가져온 이미지를 _image에 저장
-        print(pickedFile.path);
+        _pickedImg = XFile(_image.path); //가져온 이미지를 _image에 저장
+        print(_pickedImg);
       });
     }
   }
@@ -69,7 +74,11 @@ class MyWriteDailyState extends State<WriteDaily> {
             },
   ),
         ),
-        body: Center(
+        body: 
+          GestureDetector(
+            onTap: () {
+              FocusScope.of(context).unfocus();		//입력 중 화면을 누르면 입력 창 내리는 기능을 위한 gestureDetector
+            },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -181,43 +190,21 @@ class MyWriteDailyState extends State<WriteDaily> {
                 ],
               ),
               SizedBox(height: 20),
-              // GridView.builder(
-              //   shrinkWrap: true,
-              //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              //     crossAxisCount: 2,
-              //     crossAxisSpacing: 4.0,
-              //     mainAxisSpacing: 4.0,
-              //   ),
-              //   itemCount: images.length,
-              //   itemBuilder: (context, index) {
-              //     return _image != null 
-              //       ? Container(
-              //         width: 300,
-              //         height: 300,
-              //         child: Image.file(File(_image!.path)),
-              //       ) : Container(
-              //         width: 300,
-              //         height: 300,
-              //         color: Colors.grey,
-              //       );
-              //   },
-              // ),
-              //  _image != null 
-              //   ? Container(
-              //     width: 300,
-              //     height: 300,
-              //     child: Image.file(File(_image!.path)),
-              //   ) : Container(
-              //     width: 300,
-              //     height: 300,
-              //     color: Colors.grey,
-              //   ),
               IconButton(
                 onPressed: () {
                   getImage(ImageSource.gallery);
                 },
                 icon: Icon(Icons.add_a_photo, size: 30, color: Colors.black)
-            ),
+              ),
+              Container(
+                width: 200,
+                height: 200,
+                child: _pickedImg != null 
+                  ? Image.file(File(_pickedImg!.path))
+                  : Container(
+                      color: Colors.grey,
+                    ),
+              ),
               TextField(
                   controller: textEditingController,
                   maxLines: 5,
@@ -238,7 +225,6 @@ class MyWriteDailyState extends State<WriteDaily> {
           ),
         ),
       )
-      
     );
   }
 
@@ -302,7 +288,8 @@ class WeatherButton extends StatelessWidget {
 
 
 class ApiService {
-  final String baseUrl = "http://localhost:8080";
+  // final String baseUrl = "http://localhost:8080";
+  final String baseUrl = 'http://192.168.219.108:8080';
 
   Future<void> postDiary(String userId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content) async {
     try {

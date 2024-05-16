@@ -29,6 +29,8 @@ class EditDiaryState extends State<EditDiary> {
   late String content;
   late TextEditingController textEditingController;
 
+  final String serverIp = '192.168.219.108';
+
   @override
   void initState() {
     super.initState();
@@ -254,7 +256,9 @@ class WeatherButton extends StatelessWidget {
 
 
 class ApiService {
-  final String baseUrl = "http://localhost:8080";
+  // final String baseUrl = "http://localhost:8080";
+  final String baseUrl = 'http://192.168.219.108:8080';
+
 
   Future<void> putDiary(String diaryId, String userId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content) async {
     try {

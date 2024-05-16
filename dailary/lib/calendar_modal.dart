@@ -1,18 +1,25 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+
 
 class CalendarModal extends StatefulWidget {
+  final String tmp;
+  final String userId;
   final TimeOfDay selectedStartTime;
   final TimeOfDay selectedEndTime;
   final TextEditingController textEditingController;
   final DateTime selectedDay;
-  final Function(DateTime, TimeOfDay, TimeOfDay, String) onSave;
 
   const CalendarModal({
+    required this.tmp,
+    required this.userId,
     required this.selectedStartTime,
     required this.selectedEndTime,
     required this.textEditingController,
     required this.selectedDay,
-    required this.onSave,
   });
 
   @override
@@ -22,12 +29,22 @@ class CalendarModal extends StatefulWidget {
 class _CalendarModalState extends State<CalendarModal> {
   late TimeOfDay _selectedStartTime;
   late TimeOfDay _selectedEndTime;
+  late DateTime _selectedDay;
+  late ApiService apiService = ApiService();
+  late String _userId;
+  late String tmp;
+
+  // final String serverIp = process.env.SERVER_IP;
+
+
 
   @override
   void initState() {
     super.initState();
     _selectedStartTime = widget.selectedStartTime;
     _selectedEndTime = widget.selectedEndTime;
+    _selectedDay = widget.selectedDay;
+    _userId = widget.userId;
   }
 
   @override
@@ -95,11 +112,14 @@ class _CalendarModalState extends State<CalendarModal> {
           Align(
             alignment: Alignment.centerRight,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async{
                 String text = widget.textEditingController.text;
-                widget.onSave(widget.selectedDay, widget.selectedStartTime, widget.selectedEndTime, text);
+                await apiService.postCalendar(_userId, _selectedDay, _selectedStartTime, _selectedEndTime, text);
                 widget.textEditingController.clear(); // 텍스트 필드 초기화
                 Navigator.pop(context); // 바텀 시트 닫기
+                setState(() {
+                  tmp = '';
+                });
               },
               child: Text('저장'),
             ),
@@ -107,5 +127,35 @@ class _CalendarModalState extends State<CalendarModal> {
         ],
       ),
     );
+  }
+}
+class ApiService {
+    final String serverIp = '192.168.219.108';
+
+  // final String baseUrl = "http://localhost:8080";
+  final String baseUrl = 'http://192.168.219.108:8080';
+
+Future<void> postCalendar(String userId, DateTime selectedDate, TimeOfDay startTime, TimeOfDay endTime, String text) async { 
+    String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+    String formattedStartTime = '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}';
+    String formattedEndTime = '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
+    try {
+      final res = await http.post(
+        Uri.parse(baseUrl + '/calendar'), 
+        body:{
+          'userId': userId,
+          'date': formattedDate.toString(),
+          'startTime': formattedStartTime.toString(),
+          'endTime': formattedEndTime.toString(),
+          'text': text
+        }
+      );
+      final dynamic decodedData = json.decode(res.body);
+      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      final prettyString = encoder.convert(decodedData);
+      print(prettyString);
+    } catch (err) {
+      print(err);
+    }
   }
 }

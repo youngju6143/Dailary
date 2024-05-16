@@ -8,7 +8,8 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:day_night_time_picker/day_night_time_picker.dart';
+
+
 
 class DailyWidget extends StatefulWidget {
   final String userId;
@@ -30,6 +31,9 @@ class _DailyWidgetState extends State<DailyWidget> {
   late String _userId;
   late String _userName;
 
+  final String serverIp = '192.168.219.108';
+
+
   @override
   void initState() {
     super.initState();
@@ -47,6 +51,7 @@ class _DailyWidgetState extends State<DailyWidget> {
 
   @override
   Widget build(BuildContext context) {
+      
     return Scaffold(
       body: diaryList.isEmpty
         ? const Center(
@@ -121,7 +126,8 @@ class _DailyWidgetState extends State<DailyWidget> {
 
 
 class ApiService {
-  final String baseUrl = "http://localhost:8080";
+  // final String baseUrl = "http://localhost:8080";
+  final String baseUrl = 'http://192.168.219.108:8080';
 
   Future<List<Map<String, String>>> fetchDiary(String userId) async {
     try {

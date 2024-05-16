@@ -7,8 +7,15 @@ import 'package:intl/intl.dart';
 
 class EditCalendarModal extends StatefulWidget {
   final Map<String, String> calendars;
+  final String text;
+  final Function(String) onTextChanged;
 
-  EditCalendarModal({required this.calendars});
+    EditCalendarModal({
+      required this.calendars, 
+      required this.text, 
+      required this.onTextChanged
+    });
+
   
   @override
   _EditCalendarModalState createState() => _EditCalendarModalState();
@@ -23,6 +30,12 @@ class _EditCalendarModalState extends State<EditCalendarModal> {
   late DateTime selectedDay;
   late String text;
   final ApiService apiService = ApiService();
+
+  late Map<String, String> calendars;
+  late Function(String) onTextChanged;
+
+  final String serverIp = '192.168.219.108';
+
 
   @override
   void initState() {
@@ -49,6 +62,8 @@ class _EditCalendarModalState extends State<EditCalendarModal> {
   }
   @override
   Widget build(BuildContext context) {
+    TextEditingController _textEditingController = TextEditingController(text: text);
+
     return Container(
       padding: EdgeInsets.all(20),
       child: Column(
@@ -115,8 +130,11 @@ class _EditCalendarModalState extends State<EditCalendarModal> {
               onPressed: () {
                 String text = textEditingController.text;
                 apiService.putCalendar(calendarId, userId, selectedDay, startTime, endTime, text);
-                textEditingController.clear(); // 텍스트 필드 초기화
                 Navigator.pop(context); // 바텀 시트 닫기
+                onTextChanged(text);
+                  setState(() {
+                    textEditingController.clear(); // 텍스트 필드 초기화
+                  });
               },
               child: Text('저장'),
             ),
@@ -129,7 +147,9 @@ class _EditCalendarModalState extends State<EditCalendarModal> {
 
 
 class ApiService {
-  final String baseUrl = "http://localhost:8080";
+  // final String baseUrl = "http://localhost:8080";
+  final String baseUrl = 'http://192.168.219.108:8080';
+
 
   Future<void> putCalendar(String calendarId, String userId, DateTime selectedDate, TimeOfDay startTime, TimeOfDay endTime, String text) async {
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);

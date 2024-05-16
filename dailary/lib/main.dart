@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:dailary/calendar_page.dart';
-import 'package:dailary/daily_page.dart';
+import 'package:dailary/chart.dart';
+import 'package:dailary/diary_page.dart';
 import 'package:dailary/edit_diary.dart';
 import 'package:dailary/page_widget.dart';
 import 'package:dailary/write_diary.dart';
@@ -41,9 +42,12 @@ class _AuthScreenState extends State<AuthScreen> {
   late String userId;
   late String userName;
 
+  final String serverIp = '192.168.219.108';
+
   Future<void> _signUp() async {
     final response = await http.post(
-      Uri.parse('http://localhost:8080/signup'),
+      // Uri.parse('http://localhost:8080/signup'),
+      Uri.parse('http://$serverIp:8080/signup'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'userName': _usernameController.text,
@@ -59,7 +63,8 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future<void> _login() async {
     final response = await http.post(
-      Uri.parse('http://localhost:8080/login'),
+      // Uri.parse('http://localhost:8080/login'),
+      Uri.parse('http://$serverIp:8080/login'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'userName': _usernameController.text,
@@ -91,6 +96,7 @@ class _AuthScreenState extends State<AuthScreen> {
             TextField(controller: _passwordController, decoration: InputDecoration(labelText: '비밀번호')),
             ElevatedButton(onPressed: _signUp, child: Text('회원가입')),
             ElevatedButton(onPressed: _login, child: Text('로그인')),
+            // Chart(),
           ],
         ),
       ),

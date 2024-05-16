@@ -22,13 +22,16 @@ class CalendarWidget extends StatefulWidget {
 class CalendarWidgetState extends State<CalendarWidget> {
   final ApiService apiService = ApiService();
   final TextEditingController textEditingController = TextEditingController();
-
+  String _text = '';
   List<dynamic> calendars = [];
 
   late String _userId;
   late TimeOfDay _selectedStartTime;
   late TimeOfDay _selectedEndTime;
   late TextEditingController _textEditingController;
+
+  final String serverIp = '192.168.219.108';
+
 
   late String tmp = '';
 
@@ -48,9 +51,7 @@ class CalendarWidgetState extends State<CalendarWidget> {
     _textEditingController = TextEditingController();
     selectedDay = DateTime.now();
     _userId = widget.userId;
-
     // String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
-
     fetchCalendars(selectedDay);
   }
 
@@ -150,7 +151,14 @@ class CalendarWidgetState extends State<CalendarWidget> {
                               showModalBottomSheet(
                                 context: context,
                                 builder: (BuildContext context) {
-                                  return EditCalendarModal(calendars: calendars[index]);
+                                  return EditCalendarModal(
+                                    calendars: calendars[index],
+                                    text: _text,
+                                    onTextChanged: (newText) {
+                                      setState(() {
+                                        _text = newText; // 하위 컴포넌트에서 수정된 내용을 상태에 반영
+                                      });
+                                    },);
                                 },
                               );
                             },
@@ -187,14 +195,16 @@ class CalendarWidgetState extends State<CalendarWidget> {
             context: context,
             builder: (BuildContext context) {
               return CalendarModal(
+                tmp: tmp,
+                userId: _userId,
                 selectedStartTime: _selectedStartTime,
                 selectedEndTime: _selectedEndTime,
                 textEditingController: _textEditingController,
                 selectedDay: selectedDay,
-                onSave: onSaveFunction,
               );
             },
           );
+          setState(() {});
         },
       ),
     );
@@ -202,7 +212,8 @@ class CalendarWidgetState extends State<CalendarWidget> {
 }
 
 class ApiService {
-  final String baseUrl = "http://localhost:8080";
+  // final String baseUrl = "http://localhost:8080";
+  final String baseUrl = 'http://192.168.219.108:8080';
 
   Future<List<Map<String, String>>> fetchCalendar(String date, String userId) async {    
     try {

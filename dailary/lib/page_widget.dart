@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:dailary/calendar_page.dart';
-import 'package:dailary/daily_page.dart';
+import 'package:dailary/diary_page.dart';
 import 'package:dailary/main.dart';
 import 'package:dailary/write_diary.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:random_quote_gen/random_quote_gen.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class PageWidget extends StatefulWidget {  
   final String userId;
@@ -28,6 +30,9 @@ class PageWidgetState extends State<PageWidget> {
   int selectedIndex = 0;
   late String _userId = '';
   late String _userName = '';
+
+  final String serverIp = '192.168.219.108';
+
 
   @override
   void initState() {
@@ -57,6 +62,7 @@ class PageWidgetState extends State<PageWidget> {
       selectedIndex = index;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -194,8 +200,9 @@ class EmotionListItem extends StatelessWidget {
 }
 
 class ApiService {
-  final String baseUrl = "http://localhost:8080";
-  
+  // final String baseUrl = "http://localhost:8080";
+  final String baseUrl = 'http://192.168.219.108:8080';
+
   Future<Map<String, int>> fetchEmotionCounts(String userId) async {
     try {
       final res = await http.get(Uri.parse(baseUrl + '/sidebar/$userId'));

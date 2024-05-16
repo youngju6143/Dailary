@@ -13,6 +13,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+
+
 const users = [];
 let diaries = [
     { diaryId: 1, userId: 1, date: '2024-05-28', emotion: '화나요', weather: '비', content: '오늘은 정말 기쁜 하루였다. 왜냐하면 기뻤기 때문이다 ㅎㅎ 야호야호 테스트 중입니당~!\n 안녕하세요~!'},
@@ -365,6 +367,11 @@ app.delete('/calendar/:calendarId', (req, res) => {
     }
 });
 
-app.listen(8080, function () {
- console.log('listening on 8080')
-}); 
+// app.listen(8080, function () {
+//  console.log('listening on 8080')
+// }); 
+
+const PORT = 8080;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
