@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:dailary/calendar_modal.dart';
+import 'package:dailary/calendar_tile.dart';
 import 'package:dailary/edit_calender_modal.dart';
 import 'package:dailary/page_widget.dart';
-import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -23,7 +24,7 @@ class CalendarWidgetState extends State<CalendarWidget> {
   final ApiService apiService = ApiService();
   final TextEditingController textEditingController = TextEditingController();
   String _text = '';
-  List<dynamic> calendars = [];
+  List<Map<String, dynamic>> calendars = [];
 
   late String _userId;
   late TimeOfDay _selectedStartTime;
@@ -51,7 +52,6 @@ class CalendarWidgetState extends State<CalendarWidget> {
     _textEditingController = TextEditingController();
     selectedDay = DateTime.now();
     _userId = widget.userId;
-    // String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
     fetchCalendars(selectedDay);
   }
 
@@ -59,9 +59,15 @@ class CalendarWidgetState extends State<CalendarWidget> {
     final formattedDate = (DateFormat('yyyy-MM-dd').format(selectedDay)).toString();
     final fetchedCalendars = await apiService.fetchCalendar(formattedDate, _userId);
     setState(() {
-      calendars = fetchedCalendars;
+      calendars = fetchedCalendars.map((entry) => entry as Map<String, dynamic>).toList();
     });
   }
+
+  bool hasEventOnSelectedDay(DateTime date, List<Map<String, dynamic>> calendars) {
+  final formattedDate = DateFormat('yyyy-MM-dd').format(date);
+  return calendars.any((calendar) => calendar['date'] == formattedDate);
+}
+
 
   @override
   void dispose() {
@@ -87,7 +93,6 @@ class CalendarWidgetState extends State<CalendarWidget> {
             lastDay: DateTime.utc(2030, 3, 14),
             onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
               fetchCalendars(selectedDay);
-              print(calendars);
               setState((){
                 this.selectedDay = selectedDay;
                 this.focusedDay = focusedDay;
@@ -111,6 +116,7 @@ class CalendarWidgetState extends State<CalendarWidget> {
                   ),
                 );
               },
+              
             ),
           ),
           SizedBox(height: 10),
@@ -131,48 +137,34 @@ class CalendarWidgetState extends State<CalendarWidget> {
                     itemCount: calendars.length,
                     itemBuilder: (context, index) {
                       final item = calendars[index];
-                      return Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Date: ${item['date']}'),
-                              Text('Start Time: ${item['startTime']}'),
-                              Text('End Time: ${item['endTime']}'),
-                              Text('Text: ${item['text']}'),
-                              // 다른 정보들을 추가로 출력할 수 있음
-                              SizedBox(height: 10), // 각 항목 사이의 간격을 조절할 수 있음
-                            ],
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.edit), // 수정 버튼 아이콘
-                            onPressed: () {
-                              String text = _textEditingController.text;
-                              showModalBottomSheet(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return EditCalendarModal(
-                                    calendars: calendars[index],
-                                    text: _text,
-                                    onTextChanged: (newText) {
-                                      setState(() {
-                                        _text = newText; // 하위 컴포넌트에서 수정된 내용을 상태에 반영
-                                      });
-                                    },);
+                      return CalendarTile(
+                        date: item['date'],
+                        startTime: item['startTime'],
+                        endTime: item['endTime'],
+                        text: item['text'],
+                        onEditPressed: () {
+                          String text = _textEditingController.text;
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return EditCalendarModal(
+                                calendars: calendars[index],
+                                text: _text,
+                                onTextChanged: (newText) {
+                                  setState(() {
+                                    _text = newText;
+                                  });
                                 },
                               );
                             },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () {
-                              apiService.deleteCalendar(item['calendarId']); // 일기 삭제 함수 호출
-                              setState(() {
-                                calendars.removeAt(index);
-                              });
-                            },
-                          ),
-                        ] 
+                          );
+                        },
+                        onDeletePressed: () {
+                          apiService.deleteCalendar(item['calendarId']);
+                          setState(() {
+                            calendars.removeAt(index);
+                          });
+                        },
                       );
                     },
                   )

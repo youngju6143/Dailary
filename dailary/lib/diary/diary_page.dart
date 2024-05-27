@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:dailary/calendar_page.dart';
-import 'package:dailary/edit_diary.dart';
-import 'package:dailary/write_diary.dart';
+import 'package:dailary/diary/diary_tile.dart';
+import 'package:dailary/diary/edit_diary.dart';
+import 'package:dailary/diary/write_diary.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -51,7 +52,6 @@ class _DailyWidgetState extends State<DailyWidget> {
 
   @override
   Widget build(BuildContext context) {
-      
     return Scaffold(
       body: diaryList.isEmpty
         ? const Center(
@@ -69,44 +69,27 @@ class _DailyWidgetState extends State<DailyWidget> {
         : ListView.builder(
             itemCount: diaryList.length,
             itemBuilder: (context, index) {
-              final String diaryId = diaryList[index]['diaryId']!;
-              final String date = diaryList[index]['date']!;
-              final String emotion = diaryList[index]['emotion']!;
-              final String weather = diaryList[index]['weather']!;
-              final String content = diaryList[index]['content']!;
-
-              return ListTile(
-                title: Text('$date - $emotion - $weather - $content'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit), // 수정 버튼 아이콘
-                      onPressed: () {
-                        // 수정 버튼을 누를 때 해당 일기의 정보를 edit_diary 페이지로 전달
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EditDiary(diary: diaryList[index], userName: _userName,),
-                          ),
-                        );
-                      },
+              return DiaryTile(
+                diary: diaryList[index],
+                userName: _userName,
+                onEdit: (diary) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditDiary(diary: diary, userName: _userName),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () {
-                        apiService.deleteDiary(diaryId);
-                        setState(() {
-                          diaryList.removeAt(index); // 일기 삭제 함수 호출
-                        });
-                      },
-                    ),
-                  ],
-                ),
+                  );
+                },
+                onDelete: (diaryId) {
+                  apiService.deleteDiary(diaryId);
+                  setState(() {
+                    diaryList.removeAt(index);
+                  });
+                },
               );
             },
-            
           ),
+
       floatingActionButton: FloatingActionButton(
           child: Image.asset(
             "assets/imgs/edit.png",
