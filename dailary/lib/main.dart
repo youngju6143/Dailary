@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:dailary/calendar_page.dart';
 import 'package:dailary/chart.dart';
-import 'package:dailary/diary_page.dart';
-import 'package:dailary/edit_diary.dart';
+import 'package:dailary/diary/diary_page.dart';
+import 'package:dailary/diary/edit_diary.dart';
 import 'package:dailary/page_widget.dart';
-import 'package:dailary/write_diary.dart';
+import 'package:dailary/diary/write_diary.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -23,6 +23,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        fontFamily: "Diary",
+      ),
       home: Container(
         child: AuthScreen(),
       )

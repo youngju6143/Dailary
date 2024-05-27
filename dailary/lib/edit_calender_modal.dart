@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 
 
 class EditCalendarModal extends StatefulWidget {
-  final Map<String, String> calendars;
+  final Map<String, dynamic> calendars;
   final String text;
   final Function(String) onTextChanged;
 

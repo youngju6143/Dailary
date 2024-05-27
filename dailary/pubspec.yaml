@@ -87,7 +87,10 @@ flutter:
     - family: Emotion
       fonts:
       - asset: assets/fonts/Emotion.ttf
-  
+    - family: Diary
+      fonts:
+      - asset: assets/fonts/KyoboHandwriting2019.ttf
+
 
   
   # For details regarding fonts from package dependencies,

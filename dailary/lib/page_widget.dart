@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:dailary/calendar_page.dart';
-import 'package:dailary/diary_page.dart';
+import 'package:dailary/diary/diary_page.dart';
 import 'package:dailary/main.dart';
-import 'package:dailary/write_diary.dart';
+import 'package:dailary/diary/write_diary.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:random_quote_gen/random_quote_gen.dart';
@@ -76,9 +76,9 @@ class PageWidgetState extends State<PageWidget> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Padding(
-          padding: EdgeInsets.only(left: 30.0),
+          padding: EdgeInsets.only(left: 1.0),
           child: Text(
-            '나의 일기',
+            'Dailary📔',
           ),
         ),
         centerTitle: false,
