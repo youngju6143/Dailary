@@ -1,9 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
+void main() async {
+  await dotenv.load(fileName: ".env");
+}
 
 class EditCalendarModal extends StatefulWidget {
   final Map<String, dynamic> calendars;
@@ -147,9 +151,7 @@ class _EditCalendarModalState extends State<EditCalendarModal> {
 
 
 class ApiService {
-  // final String baseUrl = "http://localhost:8080";
-  final String baseUrl = 'http://192.168.219.108:8080';
-
+  final String? serverIp = dotenv.env['SERVER_IP'];
 
   Future<void> putCalendar(String calendarId, String userId, DateTime selectedDate, TimeOfDay startTime, TimeOfDay endTime, String text) async {
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
@@ -157,7 +159,7 @@ class ApiService {
     String formattedEndTime = '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
     try {
       final res = await http.put(
-        Uri.parse(baseUrl + '/calendar/$calendarId'), 
+        Uri.parse('http://$serverIp:8080/calendar/$calendarId'), 
         body:{
           'userId': userId, 
           'date': formattedDate,

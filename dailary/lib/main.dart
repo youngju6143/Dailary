@@ -47,12 +47,10 @@ class _AuthScreenState extends State<AuthScreen> {
   late String userId;
   late String userName;
 
-  // final String serverIp = '192.168.219.108';
   final String? serverIp = dotenv.env['SERVER_IP'];
 
   Future<void> _signUp() async {
     final response = await http.post(
-      // Uri.parse('http://localhost:8080/signup'),
       Uri.parse('http://$serverIp:8080/signup'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({

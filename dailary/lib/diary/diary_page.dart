@@ -5,12 +5,15 @@ import 'package:dailary/diary/diary_tile.dart';
 import 'package:dailary/diary/edit_diary.dart';
 import 'package:dailary/diary/write_diary.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-
+void main() async {
+  await dotenv.load(fileName: ".env");
+}
 
 class DailyWidget extends StatefulWidget {
   final String userId;
@@ -109,12 +112,11 @@ class _DailyWidgetState extends State<DailyWidget> {
 
 
 class ApiService {
-  // final String baseUrl = "http://localhost:8080";
-  final String baseUrl = 'http://192.168.219.108:8080';
+  final String? serverIp = dotenv.env['SERVER_IP'];
 
   Future<List<Map<String, String>>> fetchDiary(String userId) async {
     try {
-      final res = await http.get(Uri.parse(baseUrl + '/diary/$userId'));
+      final res = await http.get(Uri.parse('http://$serverIp:8080/diary/$userId'));
       final List<dynamic> jsonList = jsonDecode(res.body)['data'];
       final List<Map<String, String>> diaries = jsonList.map((entry) => {
         'diaryId': entry['diaryId'].toString(),
@@ -137,7 +139,7 @@ class ApiService {
 
   Future<void> deleteDiary(String diaryId) async {
     try {
-      final res = await http.delete(Uri.parse(baseUrl + '/diary/$diaryId'));
+      final res = await http.delete(Uri.parse('http://$serverIp:8080/diary/$diaryId'));
       final dynamic decodedData = json.decode(res.body);
       final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
       final prettyString = encoder.convert(decodedData);

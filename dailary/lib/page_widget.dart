@@ -4,9 +4,14 @@ import 'package:dailary/diary/diary_page.dart';
 import 'package:dailary/main.dart';
 import 'package:dailary/diary/write_diary.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:random_quote_gen/random_quote_gen.dart';
 import 'package:fl_chart/fl_chart.dart';
+
+void main() async {
+  await dotenv.load(fileName: ".env");
+}
 
 class PageWidget extends StatefulWidget {  
   final String userId;
@@ -200,12 +205,12 @@ class EmotionListItem extends StatelessWidget {
 }
 
 class ApiService {
-  // final String baseUrl = "http://localhost:8080";
-  final String baseUrl = 'http://192.168.219.108:8080';
+  final String? serverIp = dotenv.env['SERVER_IP'];
+
 
   Future<Map<String, int>> fetchEmotionCounts(String userId) async {
     try {
-      final res = await http.get(Uri.parse(baseUrl + '/sidebar/$userId'));
+      final res = await http.get(Uri.parse('http://$serverIp:8080//sidebar/$userId'));
       final Map<String, dynamic> jsonData = jsonDecode(res.body);
       final Map<String, int> emotionCounts = Map<String, int>.from(jsonData);
       

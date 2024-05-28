@@ -3,7 +3,12 @@ import 'dart:convert';
 import 'package:dailary/main.dart';
 import 'package:dailary/page_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+
+void main() async {
+  await dotenv.load(fileName: ".env");
+}
 
 class EditDiary extends StatefulWidget {
   final Map<String, String> diary;
@@ -256,14 +261,12 @@ class WeatherButton extends StatelessWidget {
 
 
 class ApiService {
-  // final String baseUrl = "http://localhost:8080";
-  final String baseUrl = 'http://192.168.219.108:8080';
-
+  final String? serverIp = dotenv.env['SERVER_IP'];
 
   Future<void> putDiary(String diaryId, String userId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content) async {
     try {
       final res = await http.put(
-        Uri.parse(baseUrl + '/diary/$diaryId'), 
+        Uri.parse('http://$serverIp:8080/diary/$diaryId'), 
         body:{
           'userId': userId,
           'date': selectedDate.toString(),

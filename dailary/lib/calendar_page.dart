@@ -5,10 +5,15 @@ import 'package:dailary/calendar_tile.dart';
 import 'package:dailary/edit_calender_modal.dart';
 import 'package:dailary/page_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+
+void main() async {
+  await dotenv.load(fileName: ".env");
+}
 
 class CalendarWidget extends StatefulWidget {
   final String userId;
@@ -204,12 +209,12 @@ class CalendarWidgetState extends State<CalendarWidget> {
 }
 
 class ApiService {
-  // final String baseUrl = "http://localhost:8080";
-  final String baseUrl = 'http://192.168.219.108:8080';
+  final String? serverIp = dotenv.env['SERVER_IP'];
+
 
   Future<List<Map<String, String>>> fetchCalendar(String date, String userId) async {    
     try {
-      final res = await http.get(Uri.parse(baseUrl + '/calendar/$date/$userId'));
+      final res = await http.get(Uri.parse('http://$serverIp:8080/calendar/$date/$userId'));
       if (res.statusCode == 404) {
         final dynamic decodedData = json.decode(res.body);
         final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
@@ -242,7 +247,7 @@ class ApiService {
     String formattedEndTime = '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
     try {
       final res = await http.post(
-        Uri.parse(baseUrl + '/calendar'), 
+        Uri.parse('http://$serverIp:8080/calendar'), 
         body:{
           'userId': userId,
           'date': formattedDate.toString(),
@@ -262,7 +267,7 @@ class ApiService {
 
   Future<void> deleteCalendar(String calendarId) async {
     try {
-      final res = await http.delete(Uri.parse(baseUrl + '/calendar/$calendarId'));
+      final res = await http.delete(Uri.parse('http://$serverIp:8080/calendar/$calendarId'));
       final dynamic decodedData = json.decode(res.body);
       final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
       final prettyString = encoder.convert(decodedData);

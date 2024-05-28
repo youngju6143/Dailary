@@ -5,8 +5,13 @@ import 'package:dailary/main.dart';
 import 'package:dailary/page_widget.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+
+void main() async {
+  await dotenv.load(fileName: ".env");
+}
 
 class WriteDaily extends StatefulWidget {
   final String userId;
@@ -63,6 +68,9 @@ class MyWriteDailyState extends State<WriteDaily> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        fontFamily: "Diary",
+      ),
       home: Scaffold(
         appBar: AppBar(
           title: const Text('일기 작성하기'),
@@ -288,13 +296,13 @@ class WeatherButton extends StatelessWidget {
 
 
 class ApiService {
-  // final String baseUrl = "http://localhost:8080";
-  final String baseUrl = 'http://192.168.219.108:8080';
+  final String? serverIp = dotenv.env['SERVER_IP'];
+
 
   Future<void> postDiary(String userId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content) async {
     try {
       final res = await http.post(
-        Uri.parse(baseUrl + '/diary_write'), 
+        Uri.parse('http://$serverIp:8080/diary_write'), 
         body:{
           'userId' : userId,
           'date': selectedDate.toString(),
