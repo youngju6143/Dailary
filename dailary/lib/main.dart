@@ -7,6 +7,7 @@ import 'package:dailary/diary/edit_diary.dart';
 import 'package:dailary/page_widget.dart';
 import 'package:dailary/diary/write_diary.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -16,6 +17,7 @@ import 'package:day_night_time_picker/day_night_time_picker.dart';
 
 void main() async {
   // await initializeDateFormatting();
+  await dotenv.load(fileName: ".env");
   runApp(MyApp());
 }
 
@@ -45,7 +47,8 @@ class _AuthScreenState extends State<AuthScreen> {
   late String userId;
   late String userName;
 
-  final String serverIp = '192.168.219.108';
+  // final String serverIp = '192.168.219.108';
+  final String? serverIp = dotenv.env['SERVER_IP'];
 
   Future<void> _signUp() async {
     final response = await http.post(
