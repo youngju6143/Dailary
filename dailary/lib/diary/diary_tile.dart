@@ -1,4 +1,6 @@
+import 'package:dailary/confirm_dialog.dart';
 import 'package:flutter/material.dart';
+
 
 final Map<String, Map<String, dynamic>> emotionAttributes = {
   '행복해요': {
@@ -109,7 +111,12 @@ class DiaryTile extends StatelessWidget {
                   ),
                   IconButton(
                     icon: Icon(Icons.delete, size: 18.0),
-                    onPressed: () => onDelete(diaryId),
+                    onPressed: () => showConfirmationDialog(
+                      context,
+                      '삭제 확인',
+                      '정말 삭제할까요?',
+                      () => onDelete(diaryId),
+                    ),
                   ),
                 ],
               ),
