@@ -157,21 +157,21 @@ class PageWidgetState extends State<PageWidget> {
                   BottomNavigationBarItem(
                     icon: ImageIcon(
                       AssetImage('assets/imgs/diary_unchoose.png'),
-                      size: 38,
+                      size: 30,
                     ),
-                    label: '',
+                    label: '일기',
                   ),
                   BottomNavigationBarItem(
                     icon: ImageIcon(
                       AssetImage('assets/imgs/calendar_unchoose.png'),
-                      size: 38,
+                      size: 30,
                     ),
-                    label: '',
+                    label: '일정',
                   ),
                 ],
                 currentIndex: selectedIndex,
                 selectedItemColor: const Color(0xFFFFC7D9),
-                backgroundColor: Colors.pink[200],
+                backgroundColor: Colors.white,
                 onTap: _onItemTapped,
               ),
             ),

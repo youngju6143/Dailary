@@ -94,6 +94,7 @@ class _DailyWidgetState extends State<DailyWidget> {
           ),
 
       floatingActionButton: FloatingActionButton(
+          backgroundColor: const Color(0xFFFFC7C7),
           child: Image.asset(
             "assets/imgs/edit.png",
             width: 30,

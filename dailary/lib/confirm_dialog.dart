@@ -15,17 +15,33 @@ class ConfirmDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(title),
+      backgroundColor: Colors.white,
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold 
+        ),
+      ),
       content: Text(content),
       actions: [
         TextButton(
-          child: Text('취소'),
+          child: const Text(
+            '취소',
+            style: TextStyle(
+              color: Colors.grey,
+            ),
+          ),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         TextButton(
-          child: Text('확인'),
+          child: const Text(
+            '확인',
+            style: TextStyle(
+              color: Colors.pink,
+            ),
+          ),
           onPressed: () {
             Navigator.of(context).pop();
             onConfirm();
