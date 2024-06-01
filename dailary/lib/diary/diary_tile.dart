@@ -2,7 +2,7 @@ import 'package:dailary/confirm_dialog.dart';
 import 'package:flutter/material.dart';
 
 
-final Map<String, Map<String, dynamic>> emotionAttributes = {
+const Map<String, Map<String, dynamic>> emotionAttributes = {
   '행복해요': {
     'icon': IconData(0xf584, fontFamily: 'Emotion'),
     'color': Color.fromARGB(255, 255, 119, 164),
@@ -25,7 +25,7 @@ final Map<String, Map<String, dynamic>> emotionAttributes = {
   },
 };
 
-final Map<String, IconData> weatherList = {
+const Map<String, IconData> weatherList = {
   '맑음': IconData(0xe800, fontFamily: 'Weather'),
   '흐림': IconData(0xe801, fontFamily: 'Weather'),
   '비': IconData(0xe803, fontFamily: 'Weather'),
@@ -47,13 +47,16 @@ class DiaryTile extends StatelessWidget {
     required this.onDelete,
   }) : super(key: key);
 
+
   @override
   Widget build(BuildContext context) {
+    
     final String diaryId = diary['diaryId']!;
     final String date = diary['date']!;
     final String emotion = diary['emotion']!;
     final String weather = diary['weather']!;
     final String content = diary['content']!;
+    final String imgURL = diary['imgURL']!;
 
     final IconData? emotionIcon = emotionAttributes[emotion]?['icon'];
     final Color? emotionColor = emotionAttributes[emotion]?['color'];
@@ -90,7 +93,7 @@ class DiaryTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(date,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: "Diary",
                           fontWeight: FontWeight.bold,
                         ),
@@ -125,14 +128,21 @@ class DiaryTile extends StatelessWidget {
           // SizedBox(height: 10.0),
           Container(
             height: 1,
-            color: Color(0xFFF1CCCC),
+            color: const Color(0xFFF1CCCC),
           ),
-          SizedBox(height: 10.0),
-          Text(
-            content,
-            style: TextStyle(
-              height: 1.5,
-            ),
+          const SizedBox(height: 10.0),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              imgURL != '' ? Image.network(imgURL, width: 400) : Container(),
+              const SizedBox(height: 10.0),
+              Text(
+                content,
+                style: const TextStyle(
+                  height: 1.5,
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -30,7 +30,7 @@ class DailyWidget extends StatefulWidget {
 
 class _DailyWidgetState extends State<DailyWidget> {
   final ApiService apiService = ApiService();
-  List<Map<String, String>> diaryList = [];
+  List<Map<String, dynamic>> diaryList = [];
   String imageUrl = '';
   late String _userId;
   late String _userName;
@@ -47,7 +47,7 @@ class _DailyWidgetState extends State<DailyWidget> {
   }
 
   Future<void> fetchDiaryDates() async {  
-    final List<Map<String, String>> diaries = await apiService.fetchDiary(_userId);
+    final List<Map<String, dynamic>> diaries = await apiService.fetchDiary(_userId);
     setState(() {
       diaryList = diaries;
     });
@@ -72,8 +72,19 @@ class _DailyWidgetState extends State<DailyWidget> {
         : ListView.builder(
             itemCount: diaryList.length,
             itemBuilder: (context, index) {
+              // Map<String, dynamic>에서 Map<String, String>으로 변환
+              final Map<String, dynamic> diaryMap = diaryList[index];
+              final Map<String, String> stringDiaryMap = {
+                'diaryId': diaryMap['diaryId']!,
+                'userId': diaryMap['userId']!,
+                'date': diaryMap['date']!,
+                'emotion': diaryMap['emotion']!,
+                'weather': diaryMap['weather']!,
+                'content': diaryMap['content']!,
+                'imgURL': diaryMap['imgURL'] ?? '', // null 처리
+              };
               return DiaryTile(
-                diary: diaryList[index],
+                diary: stringDiaryMap, // 변환된 Map<String, String>을 전달
                 userName: _userName,
                 onEdit: (diary) {
                   Navigator.push(
@@ -92,6 +103,7 @@ class _DailyWidgetState extends State<DailyWidget> {
               );
             },
           ),
+
 
       floatingActionButton: FloatingActionButton(
           backgroundColor: const Color(0xFFFFC7C7),
@@ -114,19 +126,24 @@ class _DailyWidgetState extends State<DailyWidget> {
 
 class ApiService {
   final String? serverIp = dotenv.env['SERVER_IP'];
-
-  Future<List<Map<String, String>>> fetchDiary(String userId) async {
+  Future<List<Map<String, dynamic>>> fetchDiary(String userId) async {
     try {
       final res = await http.get(Uri.parse('http://$serverIp:8080/diary/$userId'));
       final List<dynamic> jsonList = jsonDecode(res.body)['data'];
-      final List<Map<String, String>> diaries = jsonList.map((entry) => {
+      final List<Map<String, dynamic>> diaries = jsonList.map((entry) {
+      // 이미지 URL 추가
+      String? imgURL = entry['imgURL'] != null ? entry['imgURL'].toString() : null;
+
+      return {
         'diaryId': entry['diaryId'].toString(),
         'userId': entry['userId'].toString(),
         'date': entry['date'].toString(),
         'emotion': entry['emotion'].toString(),
         'weather': entry['weather'].toString(),
         'content': entry['content'].toString(),
-      }).toList();
+        'imgURL': imgURL // 이미지 URL 추가
+      };
+    }).toList();
       final dynamic decodedData = json.decode(res.body);
       final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
       final prettyString = encoder.convert(decodedData);

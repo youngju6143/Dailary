@@ -4,6 +4,10 @@ const app = express();
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const AWS = require('aws-sdk');
+const path = require('path');
+
+const { S3 } = require('@aws-sdk/client-s3');
+
 const multer = require('multer')
 const multerS3 = require('multer-s3')
 require("dotenv").config();
@@ -16,13 +20,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 
-AWS.config.update({
+const s3 = new S3({
     region: 'ap-northeast-2',
-    accessKeyId: process.env.S3_ACCESS_KEY,//accessKeyId의 경우는 공개되지 않도록 환경변수로 설정
-    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,//secretAccessKey도 공개되지 않도록 환경변수 설정
-});
-  
-const s3 = new AWS.S3()
+    credentials: {
+        //accessKeyId의 경우는 공개되지 않도록 환경변수로 설정
+        accessKeyId: process.env.S3_ACCESS_KEY,
+        //secretAccessKey도 공개되지 않도록 환경변수 설정
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+    },
+})
+
 const upload = multer({  
     storage: multerS3({       
       s3: s3,
@@ -32,7 +39,7 @@ const upload = multer({
       },
     }),
     limits: { fileSize: 5 * 1024 * 1024 },
-  });
+});
 
 const users = [];
 let diaries = [
@@ -135,7 +142,6 @@ app.get('/diary/:userId', (req, res) => {
     }
 });
 
-
 // 사이드바 조회
 app.get('/sidebar/:userId', (req, res) => {
     const userId = req.params.userId;
@@ -165,19 +171,19 @@ app.get('/sidebar/:userId', (req, res) => {
             code: 404,
             message: 'userId가 전달되지 않았거나, 존재하지 않는 유저입니다.',
         });
-
     }
 });
 
 // 일기 작성
-app.post('/diary_write', (req, res) => {
+app.post('/diary_write', upload.single('img'), (req, res) => {
     const diaryId = uuidv4();
     const userId = req.body.userId;
     const date = req.body.date;
     const emotion = req.body.emotion;
     const weather = req.body.weather;
     const content = req.body.content;
-    
+    const imgURL = req.file ? req.file.location : ''; // 이미지 URL
+
     const parsedDate = date.slice(0, 10);
 
     if (userId.length !== 0) {
@@ -187,29 +193,28 @@ app.post('/diary_write', (req, res) => {
             date: parsedDate,
             emotion: emotion,
             weather: weather,
-            content: content
+            content: content,
+            imgURL: imgURL // 이미지 URL 추가
         };
         diaries.push(newData);
+        // 데이터 저장 등의 작업 수행
         res.status(200).json({ 
-            success: 'true',
+            success: true,
             code: 200,
             message: '일기를 성공적으로 작성하였습니다.',
             diaryId: diaryId
         });
-        console.log('일기 조회 get API 연결 성공', diaries);
+        console.log('일기 작성 post API 연결 성공', diaries);
+        console.log('이미지 URL : ', imgURL);
     } else {
         res.status(404).json({ 
-            success: 'false',
+            success: false,
             code: 404,
             message: '존재하지 않는 유저입니다.',
         });
     }
 });
 
-app.post('/diary_write/img', upload.single('img'), (req, res) => {
-    console.log(req.file);
-    res.json({ url: req.file.location });
-  });
 
 // 일기 수정
 app.put('/diary/:diaryId', (req, res) => {

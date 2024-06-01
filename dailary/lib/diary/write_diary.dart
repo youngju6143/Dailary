@@ -37,8 +37,6 @@ class MyWriteDailyState extends State<WriteDaily> {
   String _userId = '';
   String _userName = '';
 
-  final String serverIp = '192.168.219.108';
-
   final TextEditingController textEditingController = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
@@ -77,247 +75,270 @@ class MyWriteDailyState extends State<WriteDaily> {
           title: const Text('일기 작성하기'),
           centerTitle: false,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.of(context).pop(); // 뒤로가기 버튼 클릭 시 현재 화면을 종료하여 이전 화면으로 이동
             },
-  ),
+          ),
         ),
-        body: 
-          GestureDetector(
+        body: GestureDetector(
             onTap: () {
               FocusScope.of(context).unfocus();		//입력 중 화면을 누르면 입력 창 내리는 기능을 위한 gestureDetector
             },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container( // 날짜 컨테이너
-                margin: EdgeInsets.all(20),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '오늘의 날짜',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                    OutlinedButton(
-                      onPressed: () {
-                        _selectDate(context);
-                      },
-                      child: Text(
-                        '${selectedDate.year}.${selectedDate.month}.${selectedDate.day}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black)
+                    Container( // 날짜 컨테이너
+                      margin: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '오늘의 날짜',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 10.0),
+                          OutlinedButton(
+                            onPressed: () {
+                              _selectDate(context);
+                            },
+                            child: Text(
+                              '${selectedDate.year}.${selectedDate.month}.${selectedDate.day}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.black)
+                            )
+                          ),
+                        ],
                       )
                     ),
-                  ],
-                )
-              ),
-              Container( // 감정 컨테이너
-                margin: EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '오늘의 감정',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    Container( // 감정 컨테이너
+                      margin: EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '오늘의 감정',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 5,
+                                  blurRadius: 7,
+                                  offset: Offset(0, 3), // changes position of shadow
+                                ),
+                              ],
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                            ),
+                            padding: EdgeInsets.all(10),
+                            margin: EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                EmotionButton(
+                                  iconData: IconData(0xf584, fontFamily: 'Emotion'),
+                                  emotion: '행복해요',
+                                  isSelected: selectedEmotion == '행복해요',
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedEmotion = '행복해요';
+                                    });
+                                  },
+                                  color: const Color.fromARGB(255, 255, 119, 164),
+                                ),
+                                EmotionButton(
+                                  iconData: IconData(0xf5b8, fontFamily: 'Emotion'),
+                                  emotion: '좋아요',
+                                  isSelected: selectedEmotion == '좋아요',
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedEmotion = '좋아요';
+                                    });
+                                  },
+                                  color: Color.fromARGB(255, 255, 203, 119),
+                                ),
+                                EmotionButton(
+                                  iconData: IconData(0xf5a4, fontFamily: 'Emotion'),
+                                  emotion: '그럭저럭',
+                                  isSelected: selectedEmotion == '그럭저럭',
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedEmotion = '그럭저럭';
+                                    });
+                                  },
+                                  color: Color.fromARGB(255, 107, 203, 129),
+                                ),
+                                EmotionButton(
+                                  iconData: IconData(0xf5b3, fontFamily: 'Emotion'),
+                                  emotion: '슬퍼요',
+                                  isSelected: selectedEmotion == '슬퍼요',
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedEmotion = '슬퍼요';
+                                    });
+                                  },
+                                  color: Color.fromARGB(255, 119, 196, 255),
+                                ),
+                                EmotionButton(
+                                  iconData: IconData(0xf556, fontFamily: 'Emotion'),
+                                  emotion: '화나요',
+                                  isSelected: selectedEmotion == '화나요',
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedEmotion = '화나요';
+                                    });
+                                  },
+                                  color: Color.fromARGB(255, 255, 74, 74),
+                                ),
+                              ],
+                            ),
+                          )
+                        ]
+                      ),
+                    ),
+                    Container( // 날씨 컨테이너
+                      margin: EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '오늘의 날씨',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 5,
+                                  blurRadius: 7,
+                                  offset: Offset(0, 3), // changes position of shadow
+                                ),
+                              ],
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                            ),
+                            padding: EdgeInsets.all(10),
+                            margin: EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                WeatherButton(
+                                  iconData: IconData(0xe800, fontFamily: 'Weather'),
+                                  weather: '맑음',
+                                  isSelected: selectedWeather == '맑음',
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedWeather = '맑음';
+                                    });
+                                  },
+                                ),
+                                WeatherButton(
+                                  iconData: IconData(0xe801, fontFamily: 'Weather'),
+                                  weather: '흐림',
+                                  isSelected: selectedWeather == '흐림',
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedWeather = '흐림';
+                                    });
+                                  },
+                                ),
+                                WeatherButton(
+                                  iconData: IconData(0xe803, fontFamily: 'Weather'),
+                                  weather: '비',
+                                  isSelected: selectedWeather == '비',
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedWeather = '비';
+                                    });
+                                  },
+                                ),
+                                WeatherButton(
+                                  iconData: IconData(0xe802, fontFamily: 'Weather'),
+                                  weather: '눈',
+                                  isSelected: selectedWeather == '눈',
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedWeather = '눈';
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      )
+                    ),
+                    Container( // 사진 업로드
+                      margin: EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '오늘의 사진',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              getImage(ImageSource.gallery);
+                            },
+                            icon: Icon(Icons.add_a_photo, size: 30, color: Colors.black)
+                          ),
+                          Container(
+                            width: 200,
+                            height: 200,
+                            child: _pickedImg != null 
+                              ? Image.file(File(_pickedImg!.path))
+                              : Container(
+                                  color: Colors.grey,
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
                     Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3), // changes position of shadow
-                          ),
-                        ],
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      padding: EdgeInsets.all(10),
-                      margin: EdgeInsets.all(10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      margin: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          EmotionButton(
-                            iconData: IconData(0xf584, fontFamily: 'Emotion'),
-                            emotion: '행복해요',
-                            onPressed: () {
-                              setState(() {
-                                selectedEmotion = '행복해요';
-                              });
-                            },
-                            color: const Color.fromARGB(255, 255, 119, 164),
+                          const Text(
+                            '오늘의 내용',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                           ),
-                          EmotionButton(
-                            iconData: IconData(0xf5b8, fontFamily: 'Emotion'),
-                            emotion: '좋아요',
-                            onPressed: () {
-                              setState(() {
-                                selectedEmotion = '좋아요';
-                              });
-                            },
-                            color: Color.fromARGB(255, 255, 203, 119),
-                          ),
-                          EmotionButton(
-                            iconData: IconData(0xf5a4, fontFamily: 'Emotion'),
-                            emotion: '그럭저럭',
-                            onPressed: () {
-                              setState(() {
-                                selectedEmotion = '그럭저럭';
-                              });
-                            },
-                            color: Color.fromARGB(255, 107, 203, 129),
-                          ),
-                          EmotionButton(
-                            iconData: IconData(0xf5b3, fontFamily: 'Emotion'),
-                            emotion: '슬퍼요',
-                            onPressed: () {
-                              setState(() {
-                                selectedEmotion = '슬퍼요';
-                              });
-                            },
-                            color: Color.fromARGB(255, 119, 196, 255),
-                          ),
-                          EmotionButton(
-                            iconData: IconData(0xf556, fontFamily: 'Emotion'),
-                            emotion: '화나요',
-                            onPressed: () {
-                              setState(() {
-                                selectedEmotion = '화나요';
-                              });
-                            },
-                            color: Color.fromARGB(255, 255, 74, 74),
+                          TextField(
+                            controller: textEditingController,
+                            maxLines: 5,
+                            decoration: const InputDecoration(
+                              labelText: '이곳을 눌러 일기를 작성해보세요!',
+                              border: OutlineInputBorder(),
+                            ),
                           ),
                         ],
                       ),
-                    )
-                  ]
-                ),
-              ),
-              Container( // 날씨 컨테이너
-                margin: EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '오늘의 날씨',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3), // changes position of shadow
-                          ),
-                        ],
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      padding: EdgeInsets.all(10),
-                      margin: EdgeInsets.all(10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          WeatherButton(
-                            iconData: IconData(0xe800, fontFamily: 'Weather'),
-                            weather: '맑음',
-                            onPressed: () {
-                              setState(() {
-                                selectedWeather = '맑음';
-                              });
-                            },
-                          ),
-                          WeatherButton(
-                            iconData: IconData(0xe801, fontFamily: 'Weather'),
-                            weather: '흐림',
-                            onPressed: () {
-                              setState(() {
-                                selectedWeather = '흐림';
-                              });
-                            },
-                          ),
-                          WeatherButton(
-                            iconData: IconData(0xe803, fontFamily: 'Weather'),
-                            weather: '비',
-                            onPressed: () {
-                              setState(() {
-                                selectedWeather = '비';
-                              });
-                            },
-                          ),
-                          WeatherButton(
-                            iconData: IconData(0xe802, fontFamily: 'Weather'),
-                            weather: '눈',
-                            onPressed: () {
-                              setState(() {
-                                selectedWeather = '눈';
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                )
-              ),
-              SizedBox(height: 20),
-              Container( // 사진 업로드
-                margin: EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '오늘의 사진',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        getImage(ImageSource.gallery);
+                    ElevatedButton(
+                      onPressed: () async {
+                        content = textEditingController.text;
+                        await apiService.postDiary(_userId, selectedDate, selectedEmotion, selectedWeather, content, _pickedImg);
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: _userId, userName: _userName)));
                       },
-                      icon: Icon(Icons.add_a_photo, size: 30, color: Colors.black)
-                    ),
-                    Container(
-                      width: 200,
-                      height: 200,
-                      child: _pickedImg != null 
-                        ? Image.file(File(_pickedImg!.path))
-                        : Container(
-                            color: Colors.grey,
-                          ),
+                      child: const Text('일기 작성 완료!'),
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 20),
-              TextField(
-                  controller: textEditingController,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    labelText: '내용',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ElevatedButton(
-                onPressed: () {
-                  content = textEditingController.text;
-                  apiService.postDiary(_userId, selectedDate, selectedEmotion, selectedWeather, content);
-                  apiService.postImage(_pickedImg);
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: _userId, userName: _userName)));
-                },
-                child: const Text('일기 작성 완료!'),
-              ),
-            ],
+              )
+            )
           ),
-        ),
-      )
-    );
-  }
+        )
+      );
+    }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -337,12 +358,14 @@ class MyWriteDailyState extends State<WriteDaily> {
 class EmotionButton extends StatelessWidget {
   final IconData iconData;
   final String emotion;
+  final bool isSelected;
   final VoidCallback onPressed;
   final Color color;
 
   EmotionButton({
     required this.iconData,
     required this.emotion,
+    required this.isSelected,
     required this.onPressed,
     required this.color,
   });
@@ -351,11 +374,17 @@ class EmotionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        IconButton(
-          icon: Icon(iconData),
-          onPressed: onPressed,  
-          iconSize: 30,   
-          color: color,
+        Container(
+          decoration: BoxDecoration(
+            color: isSelected ? Color(0x22000000) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: IconButton(
+            icon: Icon(iconData),
+            onPressed: onPressed,
+            iconSize: 30,
+            color: color,
+          ),
         ),
         const SizedBox(height: 5),
         Text(
@@ -373,11 +402,13 @@ class EmotionButton extends StatelessWidget {
 class WeatherButton extends StatelessWidget {
   final IconData iconData;
   final String weather;
+  final bool isSelected;
   final VoidCallback onPressed;
 
   WeatherButton({
     required this.iconData,
     required this.weather,
+    required this.isSelected,
     required this.onPressed,
   });
 
@@ -385,10 +416,16 @@ class WeatherButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        IconButton(
+        Container(
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0x22000000) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: IconButton(
           icon: Icon(iconData),
           onPressed: onPressed,  
           iconSize: 30,   
+        ),
         ),
         const SizedBox(height: 5),
         Text(
@@ -407,43 +444,52 @@ class WeatherButton extends StatelessWidget {
 class ApiService {
   final String? serverIp = dotenv.env['SERVER_IP'];
 
-  // 일기 작성
-  Future<void> postDiary(String userId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content) async {
-    try {
-      final res = await http.post(
-        Uri.parse('http://$serverIp:8080/diary_write'), 
-        body:{
-          'userId' : userId,
-          'date': selectedDate.toString(),
-          'emotion': selectedEmotion,
-          'weather': selectedWeather,
-          'content': content
-        }
-      );
-      final dynamic decodedData = json.decode(res.body);
-      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
-      final prettyString = encoder.convert(decodedData);
-      print(prettyString);
-    } catch (err) {
-      print(err);
+  Future<void> postDiary(String userId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content, XFile? input) async {
+  try {
+    var dio = Dio();
+
+    String fileName = '';
+    FormData? formData;
+
+    // 이미지가 제공되는 경우
+    if (input != null) {
+      fileName = input.path.split('/').last;
+      formData = FormData.fromMap({
+        "img": await MultipartFile.fromFile(input.path, filename: fileName),
+        'userId': userId,
+        'date': selectedDate.toString(),
+        'emotion': selectedEmotion,
+        'weather': selectedWeather,
+        'content': content
+      });
+    } else { // 이미지가 제공되지 않는 경우
+      formData = FormData.fromMap({
+        'userId': userId,
+        'date': selectedDate.toString(),
+        'emotion': selectedEmotion,
+        'weather': selectedWeather,
+        'content': content
+      });
     }
+
+    // 요청 보내기
+    final res = await dio.post(
+      'http://$serverIp:8080/diary_write',
+      data: formData,
+      options: Options(
+        contentType: 'multipart/form-data',
+      ),
+    );
+
+    // 응답 출력
+    final dynamic decodedData = json.decode(res.data);
+    final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+    final prettyString = encoder.convert(decodedData);
+    print(prettyString);
+  } catch (err) {
+    print('에러 발생: $err');
   }
-  
-  //이미지 업로드
-  Future<void> postImage(dynamic input) async {
-    print("이미지 업로드");
-    var dio = new Dio();
-    try {
-      dio.options.contentType = 'multipart/form-data';
-      
-      final res = await http.post(
-        Uri.parse('http://$serverIp:8080/diary_write'), 
-        body: input
-      );
-      print('이미지 업로드 성공 : ${res.body}');
-    } catch (err) {
-      print(err);
-    }
-  }
+}
+
 
 }
