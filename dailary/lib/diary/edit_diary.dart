@@ -86,7 +86,31 @@ class EditDiaryState extends State<EditDiary> {
             onPressed: () {
               Navigator.of(context).pop(); // 뒤로가기 버튼 클릭 시 현재 화면을 종료하여 이전 화면으로 이동
             },
-  ),
+          ),
+          actions: [
+             ElevatedButton( // 작성 완료 버튼
+              onPressed: () async {
+                content = textEditingController.text;
+                await apiService.putDiary(diaryId, userId, selectedDate, selectedEmotion, selectedWeather, content, _pickedImg, imgURL);
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: userId, userName: _userName)));
+              },
+              child: const Text(
+                '수정 완료!',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)
+                ),
+                backgroundColor: const Color(0xFFFFC7C7)
+              ),
+            ),
+            const SizedBox(width: 16),
+          ],
         ),
         body: GestureDetector(
           onTap: () {
@@ -292,22 +316,56 @@ class EditDiaryState extends State<EditDiary> {
                           '오늘의 사진',
                           style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                         ),
-                        IconButton(
-                          onPressed: () {
-                            getImage(ImageSource.gallery);
-                          },
-                          icon: Icon(Icons.add_a_photo, size: 30, color: Colors.black)
-                        ),
                         Container(
-                          width: 200,
-                          height: 200,
-                          child: _pickedImg != null 
-                            ? Image.file(File(_pickedImg!.path))
-                            : imgURL.isNotEmpty 
-                                ? Image.network(imgURL) // 이미지 URL이 있으면 네트워크 이미지를 표시
-                                : Container(
-                                    color: Colors.grey,
+                          padding: EdgeInsets.all(10),
+                          margin: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 5,
+                                blurRadius: 7,
+                                offset: Offset(0, 3), // changes position of shadow
+                              ),
+                            ],
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [ 
+                                Container(
+                                  padding: const EdgeInsets.only(left: 20, right: 20),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          getImage(ImageSource.gallery);
+                                        },
+                                        icon: const Icon(Icons.add_a_photo, size: 30, color: Colors.black)
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _pickedImg = null;
+                                          });
+                                        },
+                                        icon: const Icon(Icons.delete, size: 30, color: Colors.black)
+                                      ),
+                                    ],
                                   ),
+                                ),
+                                const Divider(),
+                                Container(
+                                  child: _pickedImg != null 
+                                    ? Image.file(File(_pickedImg!.path))
+                                    : imgURL.isNotEmpty 
+                                        ? Image.network(imgURL)
+                                        : Container(),
+                                ),
+                              ],
+                            )
                         ),
                       ],
                     ),
@@ -332,14 +390,6 @@ class EditDiaryState extends State<EditDiary> {
                         ),
                       ],
                     ),
-                  ),
-                  ElevatedButton( // 작성 완료 버튼
-                    onPressed: () async {
-                      content = textEditingController.text;
-                      await apiService.putDiary(diaryId, userId, selectedDate, selectedEmotion, selectedWeather, content, _pickedImg);
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: userId, userName: _userName)));
-                    },
-                    child: const Text('일기 작성 완료!'),
                   ),
                 ],
               ),
@@ -458,25 +508,33 @@ class WeatherButton extends StatelessWidget {
 class ApiService {
   final String? serverIp = dotenv.env['SERVER_IP'];
 
-  Future<void> putDiary(String diaryId, String userId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content, XFile? image) async {
+  Future<void> putDiary(String diaryId, String userId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content, XFile? image, String imgURL) async {
     try {
       var dio = Dio();
 
-    String fileName = '';
-    FormData? formData;
+      String fileName = '';
+      FormData? formData;
 
-    // 이미지가 제공되는 경우
-    if (image != null) {
+      if (image != null) {
       fileName = image.path.split('/').last;
       formData = FormData.fromMap({
-        "img": await MultipartFile.fromFile(image.path, filename: fileName),
         'userId': userId,
         'date': selectedDate.toString(),
         'emotion': selectedEmotion,
         'weather': selectedWeather,
-        'content': content
+        'content': content,
+        "img": await MultipartFile.fromFile(image.path, filename: fileName),
       });
-    } else { // 이미지가 제공되지 않는 경우
+    } else if (imgURL.isNotEmpty) {
+      formData = FormData.fromMap({
+        'userId': userId,
+        'date': selectedDate.toString(),
+        'emotion': selectedEmotion,
+        'weather': selectedWeather,
+        'content': content,
+        "imgURL": imgURL
+      });
+    } else { // 이미지가 제공되지 않고 imgURL도 비어있는 경우
       formData = FormData.fromMap({
         'userId': userId,
         'date': selectedDate.toString(),
@@ -485,6 +543,7 @@ class ApiService {
         'content': content
       });
     }
+
     final res = await dio.put(
       'http://$serverIp:8080/diary/$diaryId',
       data: formData,
@@ -497,7 +556,7 @@ class ApiService {
       final prettyString = encoder.convert(decodedData);
       print(prettyString);
     } catch (err) {
-      print(err);
+      print('일기 수정 에러 : $err');
     }
   }
 }

@@ -196,7 +196,7 @@ app.post('/diary_write', upload.single('img'), (req, res) => {
             content: content,
             imgURL: imgURL // 이미지 URL 추가
         };
-        diaries.push(newData);
+        diaries.unshift(newData);
         // 데이터 저장 등의 작업 수행
         res.status(200).json({ 
             success: true,
@@ -219,9 +219,15 @@ app.post('/diary_write', upload.single('img'), (req, res) => {
 // 일기 수정
 app.put('/diary/:diaryId', upload.single('img'), (req, res) => {
     const diaryId = req.params.diaryId; // 수정할 일기의 ID
-    const { userId, date, emotion, weather, content, imgURL } = req.body; // 수정할 내용
+    const { userId, date, emotion, weather, content } = req.body; // 수정할 내용
+    let imgURL = '';
+    if (req.file) {
+        imgURL = req.file.location;
+    } else {
+        imgURL = req.body.imgURL;
+    }
+    
     const parsedDate = date.slice(0, 10);
-    const newImgURL = req.file ? req.file.location : '';
     // 일기를 찾아서 수정
     const index= diaries.findIndex(diary => diary.diaryId === diaryId);
     if (index !== -1) {
@@ -233,9 +239,9 @@ app.put('/diary/:diaryId', upload.single('img'), (req, res) => {
             emotion: emotion,
             weather: weather,
             content: content,
-            imgURL : newImgURL
+            imgURL : imgURL
         };
-        console.log('일기 수정 put API 연결 성공', req.body);
+        console.log('일기 수정 put API 연결 성공', diaries[index]);
         res.send({ 
             success: true,
             code: 200,
