@@ -63,7 +63,7 @@ class _DailyWidgetState extends State<DailyWidget> {
               style: TextStyle(
                 color: Color(0xFFAAAAAA),
                 fontSize: 20,
-                fontFamily: 'Inter',
+                fontFamily: 'Diary',
                 fontWeight: FontWeight.w400,
                 height: 0,
               ),

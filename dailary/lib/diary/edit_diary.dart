@@ -54,6 +54,9 @@ class EditDiaryState extends State<EditDiary> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+       theme: ThemeData(
+        fontFamily: "Diary",
+      ),
       home: Scaffold(
         appBar: AppBar(
           title: const Text('일기 작성하기'),
