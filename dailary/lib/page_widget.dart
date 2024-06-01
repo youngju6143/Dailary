@@ -3,7 +3,9 @@ import 'package:dailary/calendar_page.dart';
 import 'package:dailary/diary/diary_page.dart';
 import 'package:dailary/main.dart';
 import 'package:dailary/diary/write_diary.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:random_quote_gen/random_quote_gen.dart';
@@ -99,49 +101,96 @@ class PageWidgetState extends State<PageWidget> {
         ],
       ),
       endDrawer: Drawer( // 사이드바 구현
+        backgroundColor: const Color(0xFFFFE2E2),
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            DrawerHeader(
-              child: Text('메뉴'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
+            const SizedBox(
+              height: 80,
+              child: DrawerHeader(
+                child: Text(
+                  'MENU', 
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
               ),
             ),
-            Divider(),
-            Text('$_userName'),
-            EmotionListItem(
-              iconData: const IconData(0xf584, fontFamily: 'Emotion'),
-              count: emotionCounts['행복해요'] ?? 0,
-              color: const Color.fromARGB(255, 255, 119, 164),
+            Container(
+              padding:EdgeInsets.only(left: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Image(
+                    image: AssetImage('assets/imgs/profile.png'),
+                    width: 20,
+                    height: 20,
+                  ),
+                  const SizedBox(width: 20.0),
+                  Text(
+                    _userName,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                    ), 
+                  ),
+                ],
+              ),
             ),
-            EmotionListItem(
-              iconData: const IconData(0xf5b8, fontFamily: 'Emotion'),
-              count: emotionCounts['좋아요'] ?? 0,
-              color: Color.fromARGB(255, 255, 203, 119),
+            const SizedBox(height: 10.0),
+            const Divider(),
+            Container(
+              padding: const EdgeInsets.only(left: 20.0),
+              child: Text(
+                "현재 ${emotionCounts['userDiariesCount']}개의 일기를 작성하셨어요!!",
+                style: TextStyle(fontSize: 20),),
             ),
-            EmotionListItem(
-              iconData: const IconData(0xf584, fontFamily: 'Emotion'),
-              count: emotionCounts['그럭저럭'] ?? 0,
-              color: Color.fromARGB(255, 107, 203, 129),
+            const SizedBox(height: 10.0),
+            Container(
+              child: Column(
+                children: [
+                  EmotionListItem(
+                    iconData: const IconData(0xf584, fontFamily: 'Emotion'),
+                    count: emotionCounts['행복해요'] ?? 0,
+                    color: const Color.fromARGB(255, 255, 119, 164),
+                  ),
+                  EmotionListItem(
+                    iconData: const IconData(0xf5b8, fontFamily: 'Emotion'),
+                    count: emotionCounts['좋아요'] ?? 0,
+                    color: Color.fromARGB(255, 255, 203, 119),
+                  ),
+                  EmotionListItem(
+                    iconData: const IconData(0xf584, fontFamily: 'Emotion'),
+                    count: emotionCounts['그럭저럭'] ?? 0,
+                    color: Color.fromARGB(255, 107, 203, 129),
+                  ),
+                  EmotionListItem(
+                    iconData: const IconData(0xf5b3, fontFamily: 'Emotion'),
+                    count: emotionCounts['슬퍼요'] ?? 0,
+                    color: const Color.fromARGB(255, 119, 196, 255),
+                  ),
+                  EmotionListItem(
+                    iconData: const IconData(0xf556, fontFamily: 'Emotion'),
+                    count: emotionCounts['화나요'] ?? 0,
+                    color: const Color.fromARGB(255, 255, 74, 74),
+                  ),
+                ],
+              ),
             ),
-            EmotionListItem(
-              iconData: const IconData(0xf5b3, fontFamily: 'Emotion'),
-              count: emotionCounts['슬퍼요'] ?? 0,
-              color: const Color.fromARGB(255, 119, 196, 255),
-            ),
-            EmotionListItem(
-              iconData: const IconData(0xf556, fontFamily: 'Emotion'),
-              count: emotionCounts['화나요'] ?? 0,
-              color: const Color.fromARGB(255, 255, 74, 74),
-            ),
-            ElevatedButton(onPressed: () {
+            CupertinoButton(
+              child: const Text(
+                '로그아웃',
+                style: TextStyle(
+                  color: Colors.grey
+                ),),
+              onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => MyApp()),
               );
-            }
-            , child: Text('로그아웃'))
+            })
           ],
         ),
       ),
@@ -207,10 +256,9 @@ class EmotionListItem extends StatelessWidget {
 class ApiService {
   final String? serverIp = dotenv.env['SERVER_IP'];
 
-
   Future<Map<String, int>> fetchEmotionCounts(String userId) async {
     try {
-      final res = await http.get(Uri.parse('http://$serverIp:8080//sidebar/$userId'));
+      final res = await http.get(Uri.parse('http://$serverIp:8080/sidebar/$userId'));
       final Map<String, dynamic> jsonData = jsonDecode(res.body);
       final Map<String, int> emotionCounts = Map<String, int>.from(jsonData);
       
