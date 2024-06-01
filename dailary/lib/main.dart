@@ -89,19 +89,64 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('로그인/회원가입')),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(controller: _usernameController, decoration: InputDecoration(labelText: '사용자 이름')),
-            TextField(controller: _passwordController, decoration: InputDecoration(labelText: '비밀번호')),
-            ElevatedButton(onPressed: _signUp, child: Text('회원가입')),
-            ElevatedButton(onPressed: _login, child: Text('로그인')),
-            // Chart(),
-          ],
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('로그인 / 회원가입'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: '로그인'),
+              Tab(text: '회원가입'),
+            ],
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: TabBarView(
+            children: [
+              // 로그인 폼
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    controller: _usernameController,
+                    decoration: const InputDecoration(labelText: '사용자 이름'),
+                  ),
+                  TextField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(labelText: '비밀번호'),
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _login,
+                    child: const Text('로그인'),
+                  ),
+                ],
+              ),
+              // 회원가입 폼
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    controller: _usernameController,
+                    decoration: const InputDecoration(labelText: '사용자 이름'),
+                  ),
+                  TextField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(labelText: '비밀번호'),
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _signUp,
+                    child: const Text('회원가입'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
