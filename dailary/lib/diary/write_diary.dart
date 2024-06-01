@@ -79,6 +79,30 @@ class MyWriteDailyState extends State<WriteDaily> {
               Navigator.of(context).pop(); // 뒤로가기 버튼 클릭 시 현재 화면을 종료하여 이전 화면으로 이동
             },
           ),
+          actions: [
+            ElevatedButton( // 작성 완료 버튼
+              onPressed: () async {
+                content = textEditingController.text;
+                await apiService.postDiary(_userId, selectedDate, selectedEmotion, selectedWeather, content, _pickedImg);
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: _userId, userName: _userName)));
+              },
+              child: const Text(
+                '작성 완료!',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)
+                ),
+                backgroundColor: const Color(0xFFFFC7C7)
+              ),
+            ),
+            const SizedBox(width: 16),
+          ],
         ),
         body: GestureDetector(
             onTap: () {
@@ -284,20 +308,55 @@ class MyWriteDailyState extends State<WriteDaily> {
                             '오늘의 사진',
                             style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                           ),
-                          IconButton(
-                            onPressed: () {
-                              getImage(ImageSource.gallery);
-                            },
-                            icon: Icon(Icons.add_a_photo, size: 30, color: Colors.black)
-                          ),
                           Container(
-                            width: 200,
-                            height: 200,
-                            child: _pickedImg != null 
-                              ? Image.file(File(_pickedImg!.path))
-                              : Container(
-                                  color: Colors.grey,
+                            padding: EdgeInsets.all(10),
+                            margin: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 5,
+                                  blurRadius: 7,
+                                  offset: Offset(0, 3), // changes position of shadow
                                 ),
+                              ],
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [ 
+                                Container(
+                                  padding: const EdgeInsets.only(left: 20, right: 20),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          getImage(ImageSource.gallery);
+                                        },
+                                        icon: const Icon(Icons.add_a_photo, size: 30, color: Colors.black)
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _pickedImg = null;
+                                          });
+                                        },
+                                        icon: const Icon(Icons.delete, size: 30, color: Colors.black)
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(),
+                                Container(
+                                  // margin: EdgeInsets.only(left: 12, bottom: 20, right: 20),
+                                  child: _pickedImg != null 
+                                    ? Image.file(File(_pickedImg!.path), width: 280)
+                                    : Container(),
+                                ),
+                              ],
+                            )
                           ),
                         ],
                       ),
@@ -312,24 +371,20 @@ class MyWriteDailyState extends State<WriteDaily> {
                             style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 10),
-                          TextField(
+                          Container(
+                            padding: EdgeInsets.only(left: 10),
+                            // margin: EdgeInsets.all(10),
+                            child: TextField(
                             controller: textEditingController,
-                            maxLines: 5,
-                            decoration: const InputDecoration(
-                              labelText: '이곳을 눌러 일기를 작성해보세요!',
-                              border: OutlineInputBorder(),
+                              maxLines: 5,
+                              decoration: const InputDecoration(
+                                labelText: '이곳을 눌러 일기를 작성해보세요!',
+                                border: OutlineInputBorder(),
+                              ),
                             ),
-                          ),
+                          )
                         ],
                       ),
-                    ),
-                    ElevatedButton( // 작성 완료 버튼
-                      onPressed: () async {
-                        content = textEditingController.text;
-                        await apiService.postDiary(_userId, selectedDate, selectedEmotion, selectedWeather, content, _pickedImg);
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: _userId, userName: _userName)));
-                      },
-                      child: const Text('일기 작성 완료!'),
                     ),
                   ],
                 ),
