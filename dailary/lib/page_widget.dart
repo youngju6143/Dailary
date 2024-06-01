@@ -83,6 +83,7 @@ class PageWidgetState extends State<PageWidget> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        backgroundColor: const Color(0xFFFFC7C7),
         title: const Padding(
           padding: EdgeInsets.only(left: 1.0),
           child: Text(
@@ -187,7 +188,7 @@ class PageWidgetState extends State<PageWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "오늘의 명언",
+                    "명언 한 줄",
                     style: TextStyle(fontSize: 20),
                   ),
                   const SizedBox(height: 20),
