@@ -3,7 +3,9 @@ const bodyParser = require('body-parser');
 const app = express();
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
-const { HttpStatusCode } = require('axios');
+const AWS = require('aws-sdk');
+const multer = require('multer')
+const multerS3 = require('multer-s3')
 require("dotenv").config();
 
 app.use(cors());
@@ -14,6 +16,23 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 
+AWS.config.update({
+    region: 'ap-northeast-2',
+    accessKeyId: process.env.S3_ACCESS_KEY,//accessKeyId의 경우는 공개되지 않도록 환경변수로 설정
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,//secretAccessKey도 공개되지 않도록 환경변수 설정
+});
+  
+const s3 = new AWS.S3()
+const upload = multer({  
+    storage: multerS3({       
+      s3: s3,
+      bucket: 'dailary',
+      key: function (req, file, cb) {
+        cb(null, `original/${Date.now()}${path.basename(file.originalname)}`);
+      },
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 },
+  });
 
 const users = [];
 let diaries = [
@@ -116,35 +135,30 @@ app.get('/diary/:userId', (req, res) => {
     }
 });
 
-app.get('/diary', (req, res) => {
-    res.status(200).json({ 
-        success: 'true',
-        code: 200,
-        message: '일기를 성공적으로 조회하였습니다.',
-        data: diaries
-    });
-    console.log('일기 조회 get API 연결 성공', diaries);
-});
 
 // 사이드바 조회
 app.get('/sidebar/:userId', (req, res) => {
     const userId = req.params.userId;
     if (userId.length !== 0) {
         const userDiaries = diaries.filter(diary => diary.userId === userId);
-        const emotionCounts = {};
+        const countingArray = {};
+        // 감정 개수 카운팅한 배열
         userDiaries.forEach(diary => {
             const emotion = diary.emotion;
             console.log("Emotion: ", emotion);
-            if (emotionCounts[emotion]) {
-                emotionCounts[emotion]++;
+            if (countingArray[emotion]) {
+                countingArray[emotion]++;
             } else {
-                emotionCounts[emotion] = 1;
+                countingArray[emotion] = 1;
             }
             });
-        
-            // JSON.stringify()를 사용하여 객체를 JSON 문자열로 변환하여 보냄
-        res.send(JSON.stringify(emotionCounts));
-        console.log(emotionCounts);
+        // 사용자 일기 카운팅한 배열
+        const userDiariesCount = userDiaries.length;
+        countingArray.userDiariesCount = userDiariesCount;
+
+        // JSON.stringify()를 사용하여 객체를 JSON 문자열로 변환하여 보냄
+        res.send(JSON.stringify(countingArray));
+        console.log(countingArray);
     } else {
         res.status(404).json({ 
             success: 'false',
@@ -191,6 +205,11 @@ app.post('/diary_write', (req, res) => {
         });
     }
 });
+
+app.post('/diary_write/img', upload.single('img'), (req, res) => {
+    console.log(req.file);
+    res.json({ url: req.file.location });
+  });
 
 // 일기 수정
 app.put('/diary/:diaryId', (req, res) => {
