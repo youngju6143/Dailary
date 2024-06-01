@@ -19,10 +19,9 @@ class PageWidget extends StatefulWidget {
   final String userId;
   final String userName;
 
-
   const PageWidget({
     required this.userId,
-    required this.userName
+    required this.userName,
   });
   
   @override
@@ -37,9 +36,7 @@ class PageWidgetState extends State<PageWidget> {
   int selectedIndex = 0;
   late String _userId = '';
   late String _userName = '';
-
-  final String serverIp = '192.168.219.108';
-
+  Map<String, String> advice = {};
 
   @override
   void initState() {
@@ -51,13 +48,17 @@ class PageWidgetState extends State<PageWidget> {
       DailyWidget(userId: _userId, userName: _userName),
       CalendarWidget(userId: _userId),
     ]);
+    fetchNewAdvice();
+  }
+
+  Future<void> fetchNewAdvice() async {  
+    final Map<String, String> newAdvice = await apiService.fetchAdvice();
+    setState(() {
+      advice = newAdvice;
+    });
   }
   final List<Widget> options = <Widget>[];
 
-  // final List<Widget> options = <Widget>[
-  //   DailyWidget(userId: _userId),
-  //   CalendarWidget(),
-  // ];
 
   void dispose() {
     pageController.dispose();
@@ -106,19 +107,19 @@ class PageWidgetState extends State<PageWidget> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             const SizedBox(
-              height: 80,
+              height: 120,
               child: DrawerHeader(
                 child: Text(
-                  'MENU', 
+                  'MENU',
                   style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
-            Container(
-              padding:EdgeInsets.only(left: 20),
+            Container( // 사용자 정보
+              padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -141,14 +142,14 @@ class PageWidgetState extends State<PageWidget> {
             ),
             const SizedBox(height: 10.0),
             const Divider(),
-            Container(
+            Container( // 일기 작성 개수 
               padding: const EdgeInsets.only(left: 20.0),
               child: Text(
                 "현재 ${emotionCounts['userDiariesCount']}개의 일기를 작성하셨어요!!",
-                style: TextStyle(fontSize: 20),),
+                style: const TextStyle(fontSize: 16),),
             ),
             const SizedBox(height: 10.0),
-            Container(
+            Container( // 감정 통계 컨테이너
               child: Column(
                 children: [
                   EmotionListItem(
@@ -179,6 +180,30 @@ class PageWidgetState extends State<PageWidget> {
                 ],
               ),
             ),
+            const Divider(),
+            Container( // 명언
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "오늘의 명언",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  const SizedBox(height: 20),
+                  Text("${advice['author']}"),
+                  const SizedBox(height: 10),
+                  Text(
+                    "${advice['message']}",
+                    style: const TextStyle(
+                      fontStyle: FontStyle.italic,
+                      fontSize: 13
+                    ),  
+                  ),
+                ],
+              )
+            ),
+            const Divider(),
             CupertinoButton(
               child: const Text(
                 '로그아웃',
@@ -219,7 +244,7 @@ class PageWidgetState extends State<PageWidget> {
                   ),
                 ],
                 currentIndex: selectedIndex,
-                selectedItemColor: const Color(0xFFFFC7D9),
+                selectedItemColor: const Color(0xFFFFC7C7),
                 backgroundColor: Colors.white,
                 onTap: _onItemTapped,
               ),
@@ -272,4 +297,21 @@ class ApiService {
       return {};
     }
   }
+
+  Future<Map<String, String>> fetchAdvice() async {
+   try {
+    final res = await http.get(Uri.parse('https://korean-advice-open-api.vercel.app/api/advice'));
+    final jsonData = jsonDecode(res.body); // JSON 형식으로 변환
+      final Map<String, String> advice = {
+        'author': jsonData['author'],
+        'message': jsonData['message']
+      };
+      print('명언 받음!! $advice');
+      return advice;
+   } catch(err) {
+    print(err);
+    return {};
+   } 
+  }
 }
+
