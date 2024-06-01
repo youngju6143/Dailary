@@ -184,8 +184,8 @@ class CalendarWidgetState extends State<CalendarWidget> {
           "assets/imgs/plus.png",
           width: 30,
         ),
-        shape: CircleBorder(),
-        backgroundColor: Colors.pink[100],
+        shape: const CircleBorder(),
+        backgroundColor: const Color(0xFFFFC7C7),
         onPressed: () {
           String text = _textEditingController.text;
           showModalBottomSheet(
@@ -201,7 +201,6 @@ class CalendarWidgetState extends State<CalendarWidget> {
               );
             },
           );
-          setState(() {});
         },
       ),
     );

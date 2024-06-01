@@ -33,7 +33,6 @@ class MyWriteDailyState extends State<WriteDaily> {
   String selectedEmotion = '';
   String selectedWeather = '';
   String content = '';
-  String _imageUrl = '';
   String _userId = '';
   String _userName = '';
 
@@ -303,7 +302,7 @@ class MyWriteDailyState extends State<WriteDaily> {
                         ],
                       ),
                     ),
-                    Container(
+                    Container( // 내용 작성
                       margin: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,6 +311,7 @@ class MyWriteDailyState extends State<WriteDaily> {
                             '오늘의 내용',
                             style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                           ),
+                          const SizedBox(height: 10),
                           TextField(
                             controller: textEditingController,
                             maxLines: 5,
@@ -323,7 +323,7 @@ class MyWriteDailyState extends State<WriteDaily> {
                         ],
                       ),
                     ),
-                    ElevatedButton(
+                    ElevatedButton( // 작성 완료 버튼
                       onPressed: () async {
                         content = textEditingController.text;
                         await apiService.postDiary(_userId, selectedDate, selectedEmotion, selectedWeather, content, _pickedImg);
@@ -444,7 +444,7 @@ class WeatherButton extends StatelessWidget {
 class ApiService {
   final String? serverIp = dotenv.env['SERVER_IP'];
 
-  Future<void> postDiary(String userId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content, XFile? input) async {
+  Future<void> postDiary(String userId, DateTime selectedDate, String selectedEmotion, String selectedWeather, String content, XFile? image) async {
   try {
     var dio = Dio();
 
@@ -452,10 +452,10 @@ class ApiService {
     FormData? formData;
 
     // 이미지가 제공되는 경우
-    if (input != null) {
-      fileName = input.path.split('/').last;
+    if (image != null) {
+      fileName = image.path.split('/').last;
       formData = FormData.fromMap({
-        "img": await MultipartFile.fromFile(input.path, filename: fileName),
+        "img": await MultipartFile.fromFile(image.path, filename: fileName),
         'userId': userId,
         'date': selectedDate.toString(),
         'emotion': selectedEmotion,
@@ -472,7 +472,6 @@ class ApiService {
       });
     }
 
-    // 요청 보내기
     final res = await dio.post(
       'http://$serverIp:8080/diary_write',
       data: formData,
