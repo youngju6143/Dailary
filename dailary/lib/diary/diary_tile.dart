@@ -109,15 +109,15 @@ class DiaryTile extends StatelessWidget {
               Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.edit, size: 18.0),
+                    icon: const Icon(Icons.edit, size: 18.0),
                     onPressed: () => onEdit(diary),
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete, size: 18.0),
+                    icon: const Icon(Icons.delete, size: 18.0),
                     onPressed: () => showConfirmationDialog(
                       context,
                       '삭제 확인',
-                      '정말 삭제할까요?',
+                      '일기를 삭제하시면 복구가 불가능해요! \n정말 삭제하시겠어요?',
                       () => onDelete(diaryId),
                     ),
                   ),
