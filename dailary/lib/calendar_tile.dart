@@ -40,27 +40,33 @@ class CalendarTile extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('$startTime - $endTime'),
+              Text(
+                '$startTime - $endTime',
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Color(0xFFAAAAAA)
+                  ),
+                ),
               Row(
                 children: [
                   IconButton(
                     icon: Icon(Icons.edit),
+                    iconSize: 18,
                     onPressed: onEditPressed,
                   ),
                   IconButton(
                     icon: Icon(Icons.delete),
+                    iconSize: 18,
                     onPressed: onDeletePressed,
                   ),
                 ],
               ),
             ],
           ),
-          Container(
-            height: 1,
-            color: Color(0xFFF1CCCC),
+          Text(
+            text, style: TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 10),
-          Text(text),
+          SizedBox(height: 10.0)
         ],
       ),
     );
