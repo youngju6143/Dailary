@@ -47,6 +47,9 @@ class _AuthScreenState extends State<AuthScreen> {
   late String userId;
   late String userName;
 
+  FocusNode _usernameFocusNode = FocusNode();
+  FocusNode _passwordFocusNode = FocusNode();
+
   final String? serverIp = dotenv.env['SERVER_IP'];
 
   Future<void> _signUp() async {
@@ -99,6 +102,7 @@ class _AuthScreenState extends State<AuthScreen> {
               Tab(text: '로그인'),
               Tab(text: '회원가입'),
             ],
+            labelColor: Color(0xFFFF3798),
           ),
         ),
         body: Padding(
@@ -111,6 +115,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 children: [
                   TextField(
                     controller: _usernameController,
+                    focusNode: _usernameFocusNode,
                     decoration: const InputDecoration(labelText: '사용자 이름'),
                   ),
                   TextField(
@@ -119,10 +124,26 @@ class _AuthScreenState extends State<AuthScreen> {
                     obscureText: true,
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton(
+                  SizedBox(
+                    height: 50,
+                    child : ElevatedButton(
                     onPressed: _login,
-                    child: const Text('로그인'),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)
+                      ),
+                      backgroundColor: const Color(0xFFFFC7C7)
+                    ),
+                    child: const Text(
+                      '로그인',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white
+                      ),
+                    ),
                   ),
+                  )
                 ],
               ),
               // 회원가입 폼
@@ -139,10 +160,27 @@ class _AuthScreenState extends State<AuthScreen> {
                     obscureText: true,
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _signUp,
-                    child: const Text('회원가입'),
+                  SizedBox(
+                    height: 50,  // 원하는 높이
+                    child: ElevatedButton(
+                      onPressed: _signUp,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)
+                        ),
+                        backgroundColor: const Color(0xFFFFC7C7),
+                      ),
+                      child: const Text(
+                        '회원가입',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white
+                        ),
+                      ),
+                    ),
                   ),
+
                 ],
               ),
             ],
