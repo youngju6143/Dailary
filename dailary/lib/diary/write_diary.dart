@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
@@ -92,8 +93,10 @@ class MyWriteDailyState extends State<WriteDaily> {
                   showContentError = textEditingController.text.isEmpty;
                 });
                 if (!showEmotionError && !showWeatherError && !showContentError) {
+                  _showLoadingDialog();
                   content = textEditingController.text;
                   await apiService.postDiary(_userId, selectedDate, selectedEmotion, selectedWeather, content, _pickedImg);
+                  _hideLoadingDialog();
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: _userId, userName: _userName)));
                 }
               },
@@ -438,6 +441,34 @@ class MyWriteDailyState extends State<WriteDaily> {
         selectedDate = picked;
       });
     }
+  }
+  void _showLoadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Dialog를 화면 바깥을 터치하여 닫을 수 없도록 설정
+      builder: (BuildContext context) {
+        return const Dialog(
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SpinKitFadingGrid(
+                  color: Color(0XFFFFC7C7),
+                  size: 50.0,
+                ),
+                SizedBox(height: 16),
+                Text('일기를 작성 중입니다...', style: TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+  void _hideLoadingDialog() {
+    Navigator.of(context).pop();
   }
 }
 
