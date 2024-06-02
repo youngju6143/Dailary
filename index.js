@@ -91,9 +91,10 @@ app.post('/signup', (req, res) => {
 
 // 로그인 엔드포인트
 app.post('/login', (req, res) => {
-    console.log(users);
     const { userName, password } = req.body;
     const user = users.find(user => user.userName === userName && user.password === password);
+    console.log(userName)
+    console.log(password)
     if (user) {
         res.status(200).json({
         success: true,

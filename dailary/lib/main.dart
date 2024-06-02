@@ -1,19 +1,9 @@
 import 'dart:convert';
-
-import 'package:dailary/calendar_page.dart';
-import 'package:dailary/chart.dart';
-import 'package:dailary/diary/diary_page.dart';
-import 'package:dailary/diary/edit_diary.dart';
+import 'package:dailary/login_err_dialog.dart';
 import 'package:dailary/page_widget.dart';
-import 'package:dailary/diary/write_diary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:day_night_time_picker/day_night_time_picker.dart';
-
 
 void main() async {
   // await initializeDateFormatting();
@@ -41,53 +31,89 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   late String userId;
   late String userName;
 
-  FocusNode _usernameFocusNode = FocusNode();
-  FocusNode _passwordFocusNode = FocusNode();
-
   final String? serverIp = dotenv.env['SERVER_IP'];
 
   Future<void> _signUp() async {
-    final response = await http.post(
-      Uri.parse('http://$serverIp:8080/signup'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'userName': _usernameController.text,
-        'password': _passwordController.text,
-      }),
-    );
-    userName = _usernameController.text;
-    final dynamic decodedData = json.decode(response.body);
-    final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
-    final prettyString = encoder.convert(decodedData);
-    print(prettyString);
+    if (_formKey.currentState?.validate() ?? false) {
+      final res = await http.post(
+        Uri.parse('http://$serverIp:8080/signup'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'userName': _usernameController.text,
+          'password': _passwordController.text,
+        }),
+      );
+      userName = _usernameController.text;
+      final dynamic decodedData = json.decode(res.body);
+      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      final prettyString = encoder.convert(decodedData);
+      print(prettyString);
+    }
   }
 
   Future<void> _login() async {
-    final response = await http.post(
-      // Uri.parse('http://localhost:8080/login'),
-      Uri.parse('http://$serverIp:8080/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'userName': _usernameController.text,
-        'password': _passwordController.text,
-      }),
-    );
-    userName = _usernameController.text;
-    final responseData = json.decode(response.body);
-    userId = responseData['userId'];
-    final dynamic decodedData = json.decode(response.body);
-    final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
-    final prettyString = encoder.convert(decodedData);
-    print(prettyString);
-    if (response.statusCode == 200)
-      Navigator.push(context, MaterialPageRoute(builder: (context) => PageWidget(userId: userId, userName: userName)));
-    
+      final res = await http.post(
+        Uri.parse('http://$serverIp:8080/login'),
+        headers: {'Content-Type': 'application/json'},        
+        body: json.encode({
+          'userName': _usernameController.text,
+          'password': _passwordController.text,
+        }),
+      );
+      if (res.statusCode == 200) {
+        final responseData = json.decode(res.body);
+        userId = responseData['userId'];
+        userName = _usernameController.text;
+        final dynamic decodedData = json.decode(res.body);
+        final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+        final prettyString = encoder.convert(decodedData);
+        print(prettyString);
+        print('statuscode : ${res.statusCode}');
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => PageWidget(userId: userId, userName: userName))
+        );
+      }
+      else if (res.statusCode == 401) {
+        showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const LoginErrDialog(
+            title: "로그인 실패", 
+            content: '존재하지 않는 유저이거나 비밀번호가 일치하지 않습니다.'
+          );
+        },
+      );
+    }
+  }
+
+  String? validateUsername(String? value) {
+    if (value == null || value.isEmpty) {
+      return '사용자 이름을 입력해주세요.';
+    }
+    final RegExp nameExp = RegExp(r'^[a-zA-Z가-힣]{2,6}$');
+    if (!nameExp.hasMatch(value)) {
+      return '영문/한글로 2-6자만 입력 가능합니다.';
+    }
+    return null;
+  }
+
+  String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return '비밀번호를 입력해주세요.';
+    }
+    final RegExp passwordExp = RegExp(r'^(?=.*[!@#\$&*~]).{6,}$');
+    if (!passwordExp.hasMatch(value)) {
+      return '영문/특수문자 포함 6자 이상 입력 가능합니다.';
+    }
+    return null;
   }
 
   @override
@@ -107,83 +133,86 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: TabBarView(
-            children: [
-              // 로그인 폼
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextField(
-                    controller: _usernameController,
-                    focusNode: _usernameFocusNode,
-                    decoration: const InputDecoration(labelText: '사용자 이름'),
-                  ),
-                  TextField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(labelText: '비밀번호'),
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 50,
-                    child : ElevatedButton(
-                    onPressed: _login,
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                      backgroundColor: const Color(0xFFFFC7C7)
+          child: Form(
+            key: _formKey,
+            child: TabBarView(
+              children: [
+                // 로그인 폼
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      controller: _usernameController,
+                      decoration: const InputDecoration(labelText: '사용자 이름'),
                     ),
-                    child: const Text(
-                      '로그인',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white
-                      ),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(labelText: '비밀번호'),
+                      obscureText: true,
                     ),
-                  ),
-                  )
-                ],
-              ),
-              // 회원가입 폼
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextField(
-                    controller: _usernameController,
-                    decoration: const InputDecoration(labelText: '사용자 이름'),
-                  ),
-                  TextField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(labelText: '비밀번호'),
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 50,  // 원하는 높이
-                    child: ElevatedButton(
-                      onPressed: _signUp,
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _login,
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: const Color(0xFFFFC7C7),
                         ),
-                        backgroundColor: const Color(0xFFFFC7C7),
-                      ),
-                      child: const Text(
-                        '회원가입',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white
+                        child: const Text(
+                          '로그인',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
+                    )
+                  ],
+                ),
+                // 회원가입 폼
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      controller: _usernameController,
+                      decoration: const InputDecoration(labelText: '사용자 이름'),
+                      validator: validateUsername,
                     ),
-                  ),
-
-                ],
-              ),
-            ],
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(labelText: '비밀번호'),
+                      obscureText: true,
+                      validator: validatePassword,
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      height: 50, // 원하는 높이
+                      child: ElevatedButton(
+                        onPressed: _signUp,
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: const Color(0xFFFFC7C7),
+                        ),
+                        child: const Text(
+                          '회원가입',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
