@@ -47,6 +47,13 @@ dependencies:
   flutter_dotenv: ^5.1.0
   dio: ^5.4.3+1
   flutter_spinkit: ^5.2.1
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/imgs/favicon.png"
+  remove_alpha_ios: true
 
 dev_dependencies:
   flutter_test: 
@@ -94,7 +101,6 @@ flutter:
     - family: Diary
       fonts:
       - asset: assets/fonts/KyoboHandwriting2019.ttf
-
 
   
   # For details regarding fonts from package dependencies,
