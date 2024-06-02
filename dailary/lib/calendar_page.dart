@@ -3,11 +3,9 @@ import 'dart:convert';
 import 'package:dailary/calendar_modal.dart';
 import 'package:dailary/calendar_tile.dart';
 import 'package:dailary/edit_calender_modal.dart';
-import 'package:dailary/page_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -79,7 +77,6 @@ class CalendarWidgetState extends State<CalendarWidget> {
     _textEditingController.dispose();
     super.dispose();
   }
-
   void onSaveFunction(DateTime selectedDay, TimeOfDay startTime, TimeOfDay endTime, String text) {
     print('선택 날짜 출력 : $selectedDay');
     apiService.postCalendar(_userId, selectedDay, _selectedStartTime, _selectedEndTime, text);
@@ -121,62 +118,67 @@ class CalendarWidgetState extends State<CalendarWidget> {
                   ),
                 );
               },
-              
             ),
           ),
           SizedBox(height: 10),
           Divider(), // 구분선 추가
-          Container(
-            margin: EdgeInsets.only(left: 16), 
-            child : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  DateFormat('yyyy-MM-dd').format(selectedDay),
-                  textAlign: TextAlign.start,
-                ),
-                SizedBox(height: 10),
-                Container(
-                  height: 170,
-                  child: ListView.builder(
-                    itemCount: calendars.length,
-                    itemBuilder: (context, index) {
-                      final item = calendars[index];
-                      return CalendarTile(
-                        date: item['date'],
-                        startTime: item['startTime'],
-                        endTime: item['endTime'],
-                        text: item['text'],
-                        onEditPressed: () {
-                          String text = _textEditingController.text;
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return EditCalendarModal(
-                                calendars: calendars[index],
-                                text: _text,
-                                onTextChanged: (newText) {
-                                  setState(() {
-                                    _text = newText;
-                                  });
-                                },
-                              );
-                            },
-                          );
-                        },
-                        onDeletePressed: () {
-                          apiService.deleteCalendar(item['calendarId']);
-                          setState(() {
-                            calendars.removeAt(index);
-                          });
-                        },
-                      );
-                    },
+          Flexible(
+            fit: FlexFit.tight,
+            child: Container(
+              margin: EdgeInsets.only(left: 16), 
+              child : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    DateFormat('yyyy-MM-dd').format(selectedDay),
+                    textAlign: TextAlign.start,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                  const SizedBox(height: 10),                
+                  Container(
+                    height: 193,
+                    child: ListView.builder(
+                      itemCount: calendars.length,
+                      itemBuilder: (context, index) {
+                        final item = calendars[index];
+                        return CalendarTile(
+                          date: item['date'],
+                          startTime: item['startTime'],
+                          endTime: item['endTime'],
+                          text: item['text'],
+                          onEditPressed: () {
+                            String text = _textEditingController.text;
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return EditCalendarModal(
+                                  calendars: calendars[index],
+                                  text: _text,
+                                  onTextChanged: (newText) {
+                                    setState(() {
+                                      _text = newText;
+                                    });
+                                  },
+                                );
+                              },
+                            );
+                          },
+                          onDelete: () {
+                            apiService.deleteCalendar(item['calendarId']);
+                            setState(() {
+                              calendars.removeAt(index);
+                            });
+                          },
+                        );
+                      },
+                    )
                   )
-                )
-              ],
+                ],
+              )
             )
-          )
+          ),
         ]
       ),
       floatingActionButton: FloatingActionButton(
