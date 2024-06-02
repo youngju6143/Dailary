@@ -1,3 +1,4 @@
+import 'package:dailary/confirm_dialog.dart';
 import 'package:flutter/material.dart';
 
 class CalendarTile extends StatelessWidget {
@@ -6,7 +7,7 @@ class CalendarTile extends StatelessWidget {
   final String endTime;
   final String text;
   final Function() onEditPressed;
-  final Function() onDeletePressed;
+  final Function onDelete;
 
   const CalendarTile({
     required this.date,
@@ -14,7 +15,7 @@ class CalendarTile extends StatelessWidget {
     required this.endTime,
     required this.text,
     required this.onEditPressed,
-    required this.onDeletePressed,
+    required this.onDelete,
   });
 
   @override
@@ -57,7 +58,13 @@ class CalendarTile extends StatelessWidget {
                   IconButton(
                     icon: Icon(Icons.delete),
                     iconSize: 18,
-                    onPressed: onDeletePressed,
+                    // onPressed: onDeletePressed,
+                    onPressed: () => showConfirmationDialog(
+                      context,
+                      '삭제 확인',
+                      '일정을 삭제하시면 복구가 불가능해요! \n정말 삭제하시겠어요?',
+                      () => onDelete()
+                    ),
                   ),
                 ],
               ),
