@@ -6,6 +6,7 @@ import 'package:dailary/diary/edit_diary.dart';
 import 'package:dailary/diary/write_diary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -35,8 +36,7 @@ class _DailyWidgetState extends State<DailyWidget> {
   late String _userId;
   late String _userName;
 
-  final String serverIp = '192.168.219.108';
-
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -50,6 +50,7 @@ class _DailyWidgetState extends State<DailyWidget> {
     final List<Map<String, dynamic>> diaries = await apiService.fetchDiary(_userId);
     setState(() {
       diaryList = diaries;
+      isLoading = false;
     });
   }
 
@@ -69,6 +70,12 @@ class _DailyWidgetState extends State<DailyWidget> {
               ),
             ),
           )
+        : isLoading ? 
+            const SpinKitFadingGrid(
+              color: Color(0XFFFFC7C7),
+              size: 50.0,
+              duration: Duration(seconds: 2)
+            )
         : ListView.builder(
             itemCount: diaryList.length,
             itemBuilder: (context, index) {

@@ -33,6 +33,8 @@ class MyWriteDailyState extends State<WriteDaily> {
   String selectedEmotion = '';
   String selectedWeather = '';
   String content = '';
+  bool showContentError = false;
+
   String _userId = '';
   String _userName = '';
 
@@ -82,10 +84,25 @@ class MyWriteDailyState extends State<WriteDaily> {
           actions: [
             ElevatedButton( // 작성 완료 버튼
               onPressed: () async {
-                content = textEditingController.text;
-                await apiService.postDiary(_userId, selectedDate, selectedEmotion, selectedWeather, content, _pickedImg);
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: _userId, userName: _userName)));
+                bool showEmotionError = true;
+                bool showWeatherError = true;
+                setState(() { 
+                  showEmotionError = selectedEmotion == '';
+                  showWeatherError = selectedWeather == '';
+                  showContentError = textEditingController.text.isEmpty;
+                });
+                if (!showEmotionError && !showWeatherError && !showContentError) {
+                  content = textEditingController.text;
+                  await apiService.postDiary(_userId, selectedDate, selectedEmotion, selectedWeather, content, _pickedImg);
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: _userId, userName: _userName)));
+                }
               },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)
+                ),
+                backgroundColor: const Color(0xFFFFC7C7)
+              ),
               child: const Text(
                 '작성 완료!',
                 style: TextStyle(
@@ -93,12 +110,6 @@ class MyWriteDailyState extends State<WriteDaily> {
                   fontWeight: FontWeight.bold,
                   color: Colors.white
                 ),
-              ),
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)
-                ),
-                backgroundColor: const Color(0xFFFFC7C7)
               ),
             ),
             const SizedBox(width: 16),
@@ -222,7 +233,12 @@ class MyWriteDailyState extends State<WriteDaily> {
                                 ),
                               ],
                             ),
-                          )
+                          ),
+                          if (selectedEmotion == '')
+                            const Text(
+                              '감정을 선택해주세요',
+                              style: TextStyle(color: Colors.red),
+                            ),
                         ]
                       ),
                     ),
@@ -295,7 +311,12 @@ class MyWriteDailyState extends State<WriteDaily> {
                                 ),
                               ],
                             ),
-                          )
+                          ),
+                          if (selectedWeather == '')
+                            const Text(
+                              '날씨를 선택해주세요',
+                              style: TextStyle(color: Colors.red),
+                            ),
                         ],
                       )
                     ),
@@ -378,11 +399,21 @@ class MyWriteDailyState extends State<WriteDaily> {
                             controller: textEditingController,
                               maxLines: 5,
                               decoration: const InputDecoration(
-                                labelText: '이곳을 눌러 일기를 작성해보세요!',
+                                hintText: '이곳을 눌러 일기를 작성해보세요!',
                                 border: OutlineInputBorder(),
                               ),
+                              onChanged: (value) {
+                                setState(() {
+                                  showContentError = value.isEmpty;
+                                });
+                              },
                             ),
-                          )
+                          ),
+                           if (showContentError)
+                          const Text(
+                            '내용을 입력해주세요',
+                            style: TextStyle(color: Colors.red),
+                          ),
                         ],
                       ),
                     ),
