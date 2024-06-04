@@ -106,7 +106,7 @@ class CalendarWidgetState extends State<CalendarWidget> {
             calendarBuilders: CalendarBuilders(
               selectedBuilder: (context, date, focused) {
                 return Container(
-                  margin: EdgeInsets.all(5.5),
+                  margin: const EdgeInsets.all(5.5),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: Colors.pink[100],
@@ -114,18 +114,18 @@ class CalendarWidgetState extends State<CalendarWidget> {
                   ),
                   child: Text(
                     '${date.day}',
-                    style: TextStyle(color: Colors.white, fontSize: 16), 
+                    style: const TextStyle(color: Colors.white, fontSize: 16), 
                   ),
                 );
               },
             ),
           ),
-          SizedBox(height: 10),
-          Divider(), // 구분선 추가
+          const SizedBox(height: 10),
+          const Divider(), // 구분선 추가
           Flexible(
             fit: FlexFit.tight,
             child: Container(
-              margin: EdgeInsets.only(left: 16), 
+              margin: const EdgeInsets.only(left: 16), 
               child : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -149,7 +149,6 @@ class CalendarWidgetState extends State<CalendarWidget> {
                           endTime: item['endTime'],
                           text: item['text'],
                           onEditPressed: () {
-                            String text = _textEditingController.text;
                             showModalBottomSheet(
                               context: context,
                               builder: (BuildContext context) {
@@ -182,14 +181,13 @@ class CalendarWidgetState extends State<CalendarWidget> {
         ]
       ),
       floatingActionButton: FloatingActionButton(
+        shape: const CircleBorder(),
+        backgroundColor: const Color(0xFFFFC7C7),
         child: Image.asset(
           "assets/imgs/plus.png",
           width: 30,
         ),
-        shape: const CircleBorder(),
-        backgroundColor: const Color(0xFFFFC7C7),
         onPressed: () {
-          String text = _textEditingController.text;
           showModalBottomSheet(
             context: context,
             builder: (BuildContext context) {
@@ -218,7 +216,7 @@ class ApiService {
       final res = await http.get(Uri.parse('http://$serverIp:8080/calendar/$date/$userId'));
       if (res.statusCode == 404) {
         final dynamic decodedData = json.decode(res.body);
-        final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+        const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
         final prettyString = encoder.convert(decodedData);
         print(prettyString);
       }
@@ -232,7 +230,7 @@ class ApiService {
         'text': entry['text'].toString(),
       }).toList();
       final dynamic decodedData = json.decode(res.body);
-      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
       final prettyString = encoder.convert(decodedData);
       print(prettyString);
       return calendars;
@@ -258,7 +256,7 @@ class ApiService {
         }
       );
       final dynamic decodedData = json.decode(res.body);
-      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
       final prettyString = encoder.convert(decodedData);
       print(prettyString);
     } catch (err) {
@@ -270,7 +268,7 @@ class ApiService {
     try {
       final res = await http.delete(Uri.parse('http://$serverIp:8080/calendar/$calendarId'));
       final dynamic decodedData = json.decode(res.body);
-      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
       final prettyString = encoder.convert(decodedData);
       print(prettyString); // 예쁘게 형식화된 JSON 데이터 출력
     } catch (err) {

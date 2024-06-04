@@ -19,7 +19,7 @@ Future<dynamic> signUp(GlobalKey<FormState> _formKey, BuildContext context, Stri
     );
     if (res.statusCode == 201) {
       final dynamic decodedData = json.decode(res.body);
-      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
       final prettyString = encoder.convert(decodedData);
       print(prettyString);
       showSignupSuccessDialog(context);
@@ -42,9 +42,8 @@ Future<dynamic> login(BuildContext context, String userName, String password) as
     }),
   );
   if (res.statusCode == 200) {
-    final responseData = json.decode(res.body);
     final dynamic decodedData = json.decode(res.body);
-    final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+    const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
     final prettyString = encoder.convert(decodedData);
     print(prettyString);
     print('statuscode : ${res.statusCode}');

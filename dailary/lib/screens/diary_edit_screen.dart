@@ -1,14 +1,10 @@
-import 'dart:io';
-
-import 'package:dailary/loading_dialog.dart';
+import 'package:dailary/widgets/loading_dialog.dart';
 import 'package:dailary/page_widget.dart';
 import 'package:dailary/services/diary_services.dart';
 import 'package:dailary/widgets/diary/content_widget.dart';
 import 'package:dailary/widgets/diary/date_widget.dart';
-import 'package:dailary/widgets/diary/emotion_button.dart';
 import 'package:dailary/widgets/diary/emotion_widget.dart';
 import 'package:dailary/widgets/diary/photo_widget.dart';
-import 'package:dailary/widgets/diary/weather_button.dart';
 import 'package:dailary/widgets/diary/weather_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';

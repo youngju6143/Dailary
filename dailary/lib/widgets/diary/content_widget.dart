@@ -22,7 +22,7 @@ class ContentWidget extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Container(
-            padding: EdgeInsets.only(left: 10),
+            padding: const EdgeInsets.only(left: 10),
             child: TextField(
               controller: textEditingController,
               maxLines: 5,

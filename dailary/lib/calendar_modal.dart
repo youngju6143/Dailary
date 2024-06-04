@@ -52,7 +52,7 @@ class _CalendarModalState extends State<CalendarModal> {
     return Scaffold(
       resizeToAvoidBottomInset: true, // 여기에서 설정
       appBar: AppBar(
-        title: Text('일정 추가하기'),
+        title: const Text('일정 추가하기'),
       ),
       body: GestureDetector(
         onTap: () {
@@ -60,7 +60,7 @@ class _CalendarModalState extends State<CalendarModal> {
         },
         child: SingleChildScrollView(
           child: Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +72,7 @@ class _CalendarModalState extends State<CalendarModal> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   children: [
                     ElevatedButton(
@@ -91,7 +91,7 @@ class _CalendarModalState extends State<CalendarModal> {
                           ? '${_selectedStartTime.hour.toString().padLeft(2, '0')}:${_selectedStartTime.minute.toString().padLeft(2, '0')}'
                           : '시작 시간 선택'),
                     ),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     ElevatedButton(
                       onPressed: () async {
                         final TimeOfDay? timeOfDay = await showTimePicker(
@@ -110,16 +110,16 @@ class _CalendarModalState extends State<CalendarModal> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 TextField(
                   controller: widget.textEditingController,
                   maxLines: 5,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: '내용',
                     border: OutlineInputBorder(),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Align(
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
@@ -129,7 +129,7 @@ class _CalendarModalState extends State<CalendarModal> {
                       widget.textEditingController.clear(); // 텍스트 필드 초기화
                       Navigator.pop(context); // 바텀 시트 닫기
                     },
-                    child: Text('저장'),
+                    child: const Text('저장'),
                   ),
                 ),
               ],
@@ -160,7 +160,7 @@ class ApiService {
         },
       );
       final dynamic decodedData = json.decode(res.body);
-      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
       final prettyString = encoder.convert(decodedData);
       print(prettyString);
     } catch (err) {

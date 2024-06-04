@@ -1,4 +1,4 @@
-import 'package:dailary/confirm_dialog.dart';
+import 'package:dailary/widgets/confirm_dialog.dart';
 import 'package:flutter/material.dart';
 
 class CalendarTile extends StatelessWidget {

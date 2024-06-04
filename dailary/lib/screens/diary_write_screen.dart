@@ -1,6 +1,4 @@
-import 'dart:io';
-
-import 'package:dailary/loading_dialog.dart';
+import 'package:dailary/widgets/loading_dialog.dart';
 import 'package:dailary/page_widget.dart';
 import 'package:dailary/services/diary_services.dart';
 import 'package:dailary/widgets/diary/content_widget.dart';

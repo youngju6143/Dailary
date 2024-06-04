@@ -13,7 +13,7 @@ class EmotionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container( // 감정 컨테이너
-      margin: EdgeInsets.all(20),
+      margin: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

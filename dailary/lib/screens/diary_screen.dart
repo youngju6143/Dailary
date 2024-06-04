@@ -1,12 +1,10 @@
-import 'dart:convert';
-import 'package:dailary/diary/diary_tile.dart';
-import 'package:dailary/diary/edit_diary.dart';
-import 'package:dailary/diary/write_diary.dart';
+import 'package:dailary/widgets/diary/diary_tile.dart';
+import 'package:dailary/screens/diary_edit_screen.dart';
+import 'package:dailary/screens/diary_write_screen.dart';
 import 'package:dailary/services/diary_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:http/http.dart' as http;
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -106,19 +104,19 @@ class _DailyWidgetState extends State<DailyWidget> {
             },
           ),
       floatingActionButton: FloatingActionButton(
-          backgroundColor: const Color(0xFFFFC7C7),
-          child: Image.asset(
-            "assets/imgs/edit.png",
-            width: 30,
-          ),
-          shape: CircleBorder(),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => WriteDaily(userId: _userId!, userName: _userName,)),
-            );
-          },
+        backgroundColor: const Color(0xFFFFC7C7),
+        shape: const CircleBorder(),
+        child: Image.asset(
+          "assets/imgs/edit.png",
+          width: 30,
         ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => WriteDaily(userId: _userId!, userName: _userName,)),
+          );
+        },
+      ),
     );
   }
 }

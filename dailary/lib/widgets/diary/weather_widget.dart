@@ -1,4 +1,3 @@
-import 'package:dailary/widgets/diary/emotion_selection.dart';
 import 'package:dailary/widgets/diary/weather_selection.dart';
 import 'package:flutter/material.dart';
 
