@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:dailary/calendar_page.dart';
+import 'package:dailary/screens/calendar_screen.dart';
 import 'package:dailary/screens/diary_screen.dart';
 import 'package:dailary/main.dart';
 import 'package:dailary/screens/diary_write_screen.dart';
@@ -46,7 +46,7 @@ class PageWidgetState extends State<PageWidget> {
 
     options.addAll([
       DailyWidget(userId: _userId, userName: _userName),
-      CalendarWidget(userId: _userId),
+      CalendarScreen(userId: _userId),
     ]);
     fetchNewAdvice();
   }
