@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dailary/diary/diary_tile.dart';
 import 'package:dailary/diary/edit_diary.dart';
 import 'package:dailary/diary/write_diary.dart';
+import 'package:dailary/services/diary_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -25,7 +26,6 @@ class DailyWidget extends StatefulWidget {
 }
 
 class _DailyWidgetState extends State<DailyWidget> {
-  final ApiService apiService = ApiService();
   List<Map<String, dynamic>> diaryList = [];
   String imageUrl = '';
   late String _userId;
@@ -42,7 +42,7 @@ class _DailyWidgetState extends State<DailyWidget> {
   }
 
   Future<void> fetchDiaryDates() async {  
-    final List<Map<String, dynamic>> diaries = await apiService.fetchDiary(_userId);
+    final List<Map<String, dynamic>> diaries = await fetchDiary(_userId);
     setState(() {
       diaryList = diaries;
       isLoading = false;
@@ -97,7 +97,7 @@ class _DailyWidgetState extends State<DailyWidget> {
                   );
                 },
                 onDelete: (diaryId) {
-                  apiService.deleteDiary(diaryId);
+                  deleteDiary(diaryId);
                   setState(() {
                     diaryList.removeAt(index);
                   });
@@ -105,8 +105,6 @@ class _DailyWidgetState extends State<DailyWidget> {
               );
             },
           ),
-
-
       floatingActionButton: FloatingActionButton(
           backgroundColor: const Color(0xFFFFC7C7),
           child: Image.asset(
@@ -122,50 +120,5 @@ class _DailyWidgetState extends State<DailyWidget> {
           },
         ),
     );
-  }
-}
-
-
-class ApiService {
-  final String? serverIp = dotenv.env['SERVER_IP'];
-  Future<List<Map<String, dynamic>>> fetchDiary(String userId) async {
-    try {
-      final res = await http.get(Uri.parse('http://$serverIp:8080/diary/$userId'));
-      final List<dynamic> jsonList = jsonDecode(res.body)['data'];
-      final List<Map<String, dynamic>> diaries = jsonList.map((entry) {
-      // 이미지 URL 추가
-      String? imgURL = entry['imgURL'] != null ? entry['imgURL'].toString() : null;
-
-      return {
-        'diaryId': entry['diaryId'].toString(),
-        'userId': entry['userId'].toString(),
-        'date': entry['date'].toString(),
-        'emotion': entry['emotion'].toString(),
-        'weather': entry['weather'].toString(),
-        'content': entry['content'].toString(),
-        'imgURL': imgURL // 이미지 URL 추가
-      };
-    }).toList();
-      final dynamic decodedData = json.decode(res.body);
-      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
-      final prettyString = encoder.convert(decodedData);
-      print(prettyString);
-      return diaries;
-    } catch (err) {
-      print('에러났다!! $err');
-      return [];
-    }
-  }
-
-  Future<void> deleteDiary(String diaryId) async {
-    try {
-      final res = await http.delete(Uri.parse('http://$serverIp:8080/diary/$diaryId'));
-      final dynamic decodedData = json.decode(res.body);
-      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
-      final prettyString = encoder.convert(decodedData);
-      print(prettyString);
-    } catch (err) {
-      print(err);
-    }
   }
 }

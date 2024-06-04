@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:dailary/calendar_page.dart';
-import 'package:dailary/diary/diary_page.dart';
+import 'package:dailary/screens/diary_screen.dart';
 import 'package:dailary/main.dart';
 import 'package:dailary/diary/write_diary.dart';
 import 'package:flutter/cupertino.dart';

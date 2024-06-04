@@ -1,5 +1,5 @@
-import 'package:dailary/widgets/login_err_dialog.dart';
-import 'package:dailary/widgets/signup_dialog.dart';
+import 'package:dailary/widgets/auth/login_err_dialog.dart';
+import 'package:dailary/widgets/auth/signup_dialog.dart';
 import 'package:flutter/material.dart';
 
 void showSignupSuccessDialog(BuildContext context) {

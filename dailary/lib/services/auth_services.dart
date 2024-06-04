@@ -1,6 +1,6 @@
- import 'dart:convert';
+import 'dart:convert';
 
-import 'package:dailary/widgets/auth_dialog.dart';
+import 'package:dailary/widgets/auth/auth_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;

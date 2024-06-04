@@ -1,6 +1,6 @@
 import 'package:dailary/services/auth_services.dart';
-import 'package:dailary/widgets/login_form.dart';
-import 'package:dailary/widgets/signup_form.dart';
+import 'package:dailary/widgets/auth/login_form.dart';
+import 'package:dailary/widgets/auth/signup_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dailary/page_widget.dart';
