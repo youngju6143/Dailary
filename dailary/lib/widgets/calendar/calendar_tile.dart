@@ -21,15 +21,15 @@ class CalendarTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-      padding: EdgeInsets.all(10.0),
+      margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+      padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(5.0),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.15),
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
             blurRadius: 6.0,
             spreadRadius: 1.0,
           ),
@@ -58,7 +58,6 @@ class CalendarTile extends StatelessWidget {
                   IconButton(
                     icon: Icon(Icons.delete),
                     iconSize: 18,
-                    // onPressed: onDeletePressed,
                     onPressed: () => showConfirmationDialog(
                       context,
                       '삭제 확인',
@@ -71,9 +70,9 @@ class CalendarTile extends StatelessWidget {
             ],
           ),
           Text(
-            text, style: TextStyle(fontSize: 16),
+            text, style: const TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 10.0)
+          const SizedBox(height: 10.0)
         ],
       ),
     );

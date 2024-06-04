@@ -89,7 +89,9 @@ Future<void> putCalendar(String calendarId, String userId, DateTime selectedDate
 
 Future<void> deleteCalendar(String calendarId) async {
   try {
-    final res = await http.delete(Uri.parse('http://$serverIp:8080/calendar/$calendarId'));
+    final res = await http.delete(
+      Uri.parse('http://$serverIp:8080/calendar/$calendarId')
+    );
     final dynamic decodedData = json.decode(res.body);
     const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
     final prettyString = encoder.convert(decodedData);
