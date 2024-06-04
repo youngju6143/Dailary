@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dailary/loading_dialog.dart';
 import 'package:dailary/main.dart';
 import 'package:dailary/page_widget.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
@@ -36,6 +38,8 @@ class EditDiaryState extends State<EditDiary> {
   late String selectedWeather;
   late String content;
   late String imgURL;
+
+  bool showContentError = false;
 
   late TextEditingController textEditingController;
 
@@ -90,10 +94,27 @@ class EditDiaryState extends State<EditDiary> {
           actions: [
              ElevatedButton( // 작성 완료 버튼
               onPressed: () async {
-                content = textEditingController.text;
-                await apiService.putDiary(diaryId, userId, selectedDate, selectedEmotion, selectedWeather, content, _pickedImg, imgURL);
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: userId, userName: _userName)));
+                bool showEmotionError = true;
+                bool showWeatherError = true;
+                setState(() { 
+                  showEmotionError = selectedEmotion == '';
+                  showWeatherError = selectedWeather == '';
+                  showContentError = textEditingController.text.isEmpty;
+                });
+                if (!showEmotionError && !showWeatherError && !showContentError) {
+                  showLoadingDialog(context, '일기를 수정 중입니다...');
+                  content = textEditingController.text;
+                  await apiService.putDiary(diaryId, userId, selectedDate, selectedEmotion, selectedWeather, content, _pickedImg, imgURL);
+                  hideLoadingDialog(context);
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: userId, userName: _userName)));
+                }
               },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)
+                ),
+                backgroundColor: const Color(0xFFFFC7C7)
+              ),
               child: const Text(
                 '수정 완료!',
                 style: TextStyle(
@@ -101,12 +122,6 @@ class EditDiaryState extends State<EditDiary> {
                   fontWeight: FontWeight.bold,
                   color: Colors.white
                 ),
-              ),
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)
-                ),
-                backgroundColor: const Color(0xFFFFC7C7)
               ),
             ),
             const SizedBox(width: 16),
@@ -230,7 +245,12 @@ class EditDiaryState extends State<EditDiary> {
                               ),
                             ],
                           ),
-                        )
+                        ),
+                        if (selectedEmotion == '')
+                            const Text(
+                              '감정을 선택해주세요',
+                              style: TextStyle(color: Colors.red),
+                            ),
                       ]
                     ),
                   ),
@@ -303,7 +323,12 @@ class EditDiaryState extends State<EditDiary> {
                               ),
                             ],
                           ),
-                        )
+                        ),
+                        if (selectedWeather == '')
+                            const Text(
+                              '날씨를 선택해주세요',
+                              style: TextStyle(color: Colors.red),
+                            ),
                       ],
                     )
                   ),
@@ -380,13 +405,26 @@ class EditDiaryState extends State<EditDiary> {
                           style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 10),
-                        TextField(
+                        Container(
+                          padding: EdgeInsets.only(left: 10),
+                          child: TextField(
                           controller: textEditingController,
-                          maxLines: 5,
-                          decoration: const InputDecoration(
-                            labelText: '이곳을 눌러 일기를 작성해보세요!',
-                            border: OutlineInputBorder(),
+                            maxLines: 5,
+                            decoration: const InputDecoration(
+                              hintText: '이곳을 눌러 일기를 작성해보세요!',
+                              border: OutlineInputBorder(),
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                showContentError = value.isEmpty;
+                              });
+                            },
                           ),
+                        ),
+                        if (showContentError)
+                        const Text(
+                          '내용을 입력해주세요',
+                          style: TextStyle(color: Colors.red),
                         ),
                       ],
                     ),
@@ -397,13 +435,8 @@ class EditDiaryState extends State<EditDiary> {
           )
         ),
       )
-      
     );
   }
-
-  // apiService.putDiary(diaryId, userId, selectedDate, selectedEmotion, selectedWeather, content);
-
-
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,

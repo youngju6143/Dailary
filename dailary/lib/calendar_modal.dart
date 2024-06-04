@@ -128,9 +128,6 @@ class _CalendarModalState extends State<CalendarModal> {
                       await apiService.postCalendar(_userId, _selectedDay, _selectedStartTime, _selectedEndTime, text);
                       widget.textEditingController.clear(); // 텍스트 필드 초기화
                       Navigator.pop(context); // 바텀 시트 닫기
-                      setState(() {
-                        tmp = '';
-                      });
                     },
                     child: Text('저장'),
                   ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dailary/loading_dialog.dart';
 import 'package:dailary/main.dart';
 import 'package:dailary/page_widget.dart';
 import 'package:dio/dio.dart';
@@ -93,10 +94,10 @@ class MyWriteDailyState extends State<WriteDaily> {
                   showContentError = textEditingController.text.isEmpty;
                 });
                 if (!showEmotionError && !showWeatherError && !showContentError) {
-                  _showLoadingDialog();
+                  showLoadingDialog(context, '일기를 작성 중입니다...');
                   content = textEditingController.text;
                   await apiService.postDiary(_userId, selectedDate, selectedEmotion, selectedWeather, content, _pickedImg);
-                  _hideLoadingDialog();
+                  hideLoadingDialog(context);
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) => PageWidget(userId: _userId, userName: _userName)));
                 }
               },
@@ -397,7 +398,6 @@ class MyWriteDailyState extends State<WriteDaily> {
                           const SizedBox(height: 10),
                           Container(
                             padding: EdgeInsets.only(left: 10),
-                            // margin: EdgeInsets.all(10),
                             child: TextField(
                             controller: textEditingController,
                               maxLines: 5,
@@ -412,7 +412,7 @@ class MyWriteDailyState extends State<WriteDaily> {
                               },
                             ),
                           ),
-                           if (showContentError)
+                          if (showContentError)
                           const Text(
                             '내용을 입력해주세요',
                             style: TextStyle(color: Colors.red),
@@ -441,34 +441,6 @@ class MyWriteDailyState extends State<WriteDaily> {
         selectedDate = picked;
       });
     }
-  }
-  void _showLoadingDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Dialog를 화면 바깥을 터치하여 닫을 수 없도록 설정
-      builder: (BuildContext context) {
-        return const Dialog(
-          backgroundColor: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SpinKitFadingGrid(
-                  color: Color(0XFFFFC7C7),
-                  size: 50.0,
-                ),
-                SizedBox(height: 16),
-                Text('일기를 작성 중입니다...', style: TextStyle(fontSize: 16)),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-  void _hideLoadingDialog() {
-    Navigator.of(context).pop();
   }
 }
 

@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:dailary/calendar_page.dart';
 import 'package:dailary/diary/diary_tile.dart';
 import 'package:dailary/diary/edit_diary.dart';
 import 'package:dailary/diary/write_diary.dart';
@@ -8,9 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
