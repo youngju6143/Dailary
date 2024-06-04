@@ -28,10 +28,11 @@ class EditCalendarModal extends StatefulWidget {
 class _EditCalendarModalState extends State<EditCalendarModal> {
   late String calendarId;
   late String userId;
-  late TimeOfDay startTime;
-  late TimeOfDay endTime;
-  late TextEditingController textEditingController;
+  late TimeOfDay selectedStartTime;
+  late TimeOfDay selectedEndTime;
   late DateTime selectedDay;
+
+  late TextEditingController textEditingController;
   late String text;
   final ApiService apiService = ApiService();
 
@@ -50,9 +51,9 @@ class _EditCalendarModalState extends State<EditCalendarModal> {
 
     calendarId = widget.calendars['calendarId'] ?? '';
     userId = widget.calendars['userId'] ?? '';
-    startTime = parseTimeOfDay(formattedStartTime);
+    selectedStartTime = parseTimeOfDay(formattedStartTime);
     selectedDay = DateTime.parse(widget.calendars['date']!);
-    endTime = parseTimeOfDay(formattedEndTime);
+    selectedEndTime = parseTimeOfDay(formattedEndTime);
     text = widget.calendars['text'] ?? '';
     textEditingController = TextEditingController(text: text);
 
@@ -66,89 +67,98 @@ class _EditCalendarModalState extends State<EditCalendarModal> {
   }
   @override
   Widget build(BuildContext context) {
-    TextEditingController _textEditingController = TextEditingController(text: text);
-
-    return Container(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '일정 추가하기',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+    return Scaffold(
+      resizeToAvoidBottomInset: true, // 여기에서 설정
+      appBar: AppBar(
+        title: Text('일정 추가하기'),
+      ),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus(); // 입력 중 화면을 누르면 입력 창 내리는 기능
+        },
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '일정 추가하기',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final TimeOfDay? timeOfDay = await showTimePicker(
+                          context: context,
+                          initialTime: selectedStartTime ?? TimeOfDay.now(),
+                        );
+                        if (timeOfDay != null) {
+                          setState(() {
+                            selectedStartTime = timeOfDay;
+                          });
+                        }
+                      },
+                      child: Text(selectedStartTime != null
+                          ? '${selectedStartTime.hour.toString().padLeft(2, '0')}:${selectedStartTime.minute.toString().padLeft(2, '0')}'
+                          : '시작 시간 선택'),
+                    ),
+                    SizedBox(width: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final TimeOfDay? timeOfDay = await showTimePicker(
+                          context: context,
+                          initialTime: selectedEndTime ?? TimeOfDay.now(),
+                        );
+                        if (timeOfDay != null) {
+                          setState(() {
+                            selectedEndTime = timeOfDay;
+                          });
+                        }
+                      },
+                      child: Text(selectedEndTime != null
+                          ? '${selectedEndTime.hour.toString().padLeft(2, '0')}:${selectedEndTime.minute.toString().padLeft(2, '0')}'
+                          : '종료 시간 선택'),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: textEditingController,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                    labelText: '내용',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      String text = textEditingController.text;
+                      await apiService.putCalendar(calendarId, userId, selectedDay, selectedStartTime, selectedEndTime, text);
+                      Navigator.pop(context); // 바텀 시트 닫기
+                    },
+                    child: Text('저장'),
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 20),
-          Row(
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  final TimeOfDay? timeOfDay = await showTimePicker(
-                    context: context,
-                    initialTime: startTime  ?? TimeOfDay.now(),
-                  );
-                  if (timeOfDay != null) {
-                    setState(() {
-                      startTime = timeOfDay;
-                    });
-                  }
-                },
-                child: Text(startTime != null
-                    ? '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}'
-                    : '시작 시간 선택')),
-              SizedBox(width: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  final TimeOfDay? timeOfDay = await showTimePicker(
-                    context: context,
-                    initialTime: endTime ?? TimeOfDay.now(),
-                  );
-                  if (timeOfDay != null) {
-                    setState(() {
-                      endTime = timeOfDay;
-                    });
-                  }
-                },
-                child: Text(endTime != null
-                    ? '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}'
-                    : '종료 시간 선택'),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          TextField(
-            controller: textEditingController,
-            maxLines: 5,
-            decoration: InputDecoration(
-              labelText: '내용',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          SizedBox(height: 20),
-          Align(
-            alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              onPressed: () {
-                String text = textEditingController.text;
-                apiService.putCalendar(calendarId, userId, selectedDay, startTime, endTime, text);
-                Navigator.pop(context); // 바텀 시트 닫기
-                onTextChanged(text);
-                  setState(() {
-                    textEditingController.clear(); // 텍스트 필드 초기화
-                  });
-              },
-              child: Text('저장'),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
+//                 apiService.putCalendar(calendarId, userId, selectedDay, startTime, endTime, text);
 
 class ApiService {
   final String? serverIp = dotenv.env['SERVER_IP'];

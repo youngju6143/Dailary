@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dailary/login_err_dialog.dart';
 import 'package:dailary/page_widget.dart';
+import 'package:dailary/signup_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -50,44 +51,66 @@ class _AuthScreenState extends State<AuthScreen> {
           'password': _passwordController.text,
         }),
       );
-      userName = _usernameController.text;
-      final dynamic decodedData = json.decode(res.body);
-      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
-      final prettyString = encoder.convert(decodedData);
-      print(prettyString);
-    }
-  }
-
-  Future<void> _login() async {
-      final res = await http.post(
-        Uri.parse('http://$serverIp:8080/login'),
-        headers: {'Content-Type': 'application/json'},        
-        body: json.encode({
-          'userName': _usernameController.text,
-          'password': _passwordController.text,
-        }),
-      );
-      if (res.statusCode == 200) {
-        final responseData = json.decode(res.body);
-        userId = responseData['userId'];
+      if (res.statusCode == 201) {
         userName = _usernameController.text;
         final dynamic decodedData = json.decode(res.body);
         final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
         final prettyString = encoder.convert(decodedData);
         print(prettyString);
-        print('statuscode : ${res.statusCode}');
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => PageWidget(userId: userId, userName: userName))
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const SignupDialog(
+              title: "회원가입 성공", 
+              content: '회원가입에 성공하였어요!'
+            );
+          },
         );
       }
-      else if (res.statusCode == 401) {
+      else if (res.statusCode == 400) {
         showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const SignupDialog(
+              title: "회원가입 실패", 
+              content: '이미 존재하는 회원이예요.'
+            );
+          },
+        );
+      }
+    }
+  }
+
+  Future<void> _login() async {
+    final res = await http.post(
+      Uri.parse('http://$serverIp:8080/login'),
+      headers: {'Content-Type': 'application/json'},        
+      body: json.encode({
+        'userName': _usernameController.text,
+        'password': _passwordController.text,
+      }),
+    );
+    if (res.statusCode == 200) {
+      final responseData = json.decode(res.body);
+      userId = responseData['userId'];
+      userName = _usernameController.text;
+      final dynamic decodedData = json.decode(res.body);
+      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      final prettyString = encoder.convert(decodedData);
+      print(prettyString);
+      print('statuscode : ${res.statusCode}');
+      Navigator.push(
+        context, 
+        MaterialPageRoute(builder: (context) => PageWidget(userId: userId, userName: userName))
+      );
+    }
+    else if (res.statusCode == 401) {
+      showDialog(
         context: context,
         builder: (BuildContext context) {
           return const LoginErrDialog(
             title: "로그인 실패", 
-            content: '존재하지 않는 유저이거나 비밀번호가 일치하지 않습니다.'
+            content: '존재하지 않는 유저이거나 비밀번호가 일치하지 않아요.'
           );
         },
       );

@@ -88,6 +88,10 @@ class PageWidgetState extends State<PageWidget> {
           padding: EdgeInsets.only(left: 1.0),
           child: Text(
             'Dailary📔',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold
+            ),
           ),
         ),
         centerTitle: false,
