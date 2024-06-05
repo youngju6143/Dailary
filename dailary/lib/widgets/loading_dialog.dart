@@ -25,6 +25,6 @@ void showLoadingDialog(BuildContext context, String message) {
       },
     );
   }
-  void hideLoadingDialog(BuildContext context,) {
+  void hideLoadingDialog(BuildContext context) {
     Navigator.of(context).pop();
   }

@@ -51,12 +51,12 @@ class CalendarTile extends StatelessWidget {
               Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.edit),
+                    icon: const Icon(Icons.edit),
                     iconSize: 18,
                     onPressed: onEditPressed,
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete),
+                    icon: const Icon(Icons.delete),
                     iconSize: 18,
                     onPressed: () => showConfirmationDialog(
                       context,

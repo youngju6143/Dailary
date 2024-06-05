@@ -7,10 +7,10 @@ import 'package:http/http.dart' as http;
 
 final String? serverIp = dotenv.env['SERVER_IP'];
 
-Future<dynamic> signUp(GlobalKey<FormState> _formKey, BuildContext context, String userName, String password) async {
-  if (_formKey.currentState?.validate() ?? false) {
+Future<dynamic> signUp(GlobalKey<FormState> formKey, BuildContext context, String userName, String password) async {
+  if (formKey.currentState?.validate() ?? false) {
     final res = await http.post(
-      Uri.parse('http://$serverIp:8080/signup'),
+      Uri.parse('http://$serverIp:8080/auth/signup'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'userName': userName,
@@ -34,7 +34,7 @@ Future<dynamic> signUp(GlobalKey<FormState> _formKey, BuildContext context, Stri
 
 Future<dynamic> login(BuildContext context, String userName, String password) async {
   final res = await http.post(
-    Uri.parse('http://$serverIp:8080/login'),
+    Uri.parse('http://$serverIp:8080/auth/login'),
     headers: {'Content-Type': 'application/json'},        
     body: json.encode({
       'userName': userName,

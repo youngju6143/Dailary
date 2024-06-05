@@ -45,7 +45,7 @@ Future<void> postCalendar(String userId, DateTime selectedDate, TimeOfDay startT
   String formattedEndTime = '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
   try {
     final res = await http.post(
-      Uri.parse('http://$serverIp:8080/calendar'), 
+      Uri.parse('http://$serverIp:8080/calendar/write'), 
       body:{
         'userId': userId,
         'date': formattedDate.toString(),
@@ -79,7 +79,7 @@ Future<void> putCalendar(String calendarId, String userId, DateTime selectedDate
         }
       );
       final dynamic decodedData = json.decode(res.body);
-      final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+      const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
       final prettyString = encoder.convert(decodedData);
       print(prettyString);
     } catch (err) {

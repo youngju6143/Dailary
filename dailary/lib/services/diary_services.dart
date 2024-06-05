@@ -26,7 +26,7 @@ Future<List<Map<String, dynamic>>> fetchDiary(String userId) async {
     };
   }).toList();
     final dynamic decodedData = json.decode(res.body);
-    final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+    const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
     final prettyString = encoder.convert(decodedData);
     print(prettyString);
     return diaries;
@@ -65,7 +65,7 @@ Future<void> postDiary(String userId, DateTime selectedDate, String selectedEmot
     }
 
     final res = await dio.post(
-      'http://$serverIp:8080/diary_write',
+      'http://$serverIp:8080/diary/write',
       data: formData,
       options: Options(
         contentType: 'multipart/form-data',
@@ -74,7 +74,7 @@ Future<void> postDiary(String userId, DateTime selectedDate, String selectedEmot
 
     // 응답 출력
     final dynamic decodedData = json.decode(res.data);
-    final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+    const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
     final prettyString = encoder.convert(decodedData);
     print(prettyString);
   } catch (err) {
@@ -86,7 +86,7 @@ Future<void> deleteDiary(String diaryId) async {
   try {
     final res = await http.delete(Uri.parse('http://$serverIp:8080/diary/$diaryId'));
     final dynamic decodedData = json.decode(res.body);
-    final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+    const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
     final prettyString = encoder.convert(decodedData);
     print(prettyString);
   } catch (err) {
@@ -138,7 +138,7 @@ Future<void> putDiary(String diaryId, String userId, DateTime selectedDate, Stri
     ),
   );
     final dynamic decodedData = json.decode(res.data);
-    final JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
+    const JsonEncoder encoder = JsonEncoder.withIndent('  '); // 들여쓰기 2칸
     final prettyString = encoder.convert(decodedData);
     print(prettyString);
   } catch (err) {
