@@ -31,7 +31,6 @@ class CalendarWidgetState extends State<CalendarScreen> {
   late TimeOfDay _selectedEndTime;
   late TextEditingController _textEditingController;
 
-
   DateTime selectedDay = DateTime(
     DateTime.now().year,
     DateTime.now().month,
@@ -58,7 +57,6 @@ class CalendarWidgetState extends State<CalendarScreen> {
     selectedDay = DateTime.now();
     _userId = widget.userId;
     fetchCalendars(selectedDay, _userId, setState);
-    print("fetchCalendars 잘 되었을까?? $calendars");
   }
   
   
@@ -68,6 +66,7 @@ class CalendarWidgetState extends State<CalendarScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 달력
           CalendarWidget(
             focusedDay: focusedDay,
             selectedDay: selectedDay,
@@ -103,6 +102,7 @@ class CalendarWidgetState extends State<CalendarScreen> {
                       itemCount: calendars.length,
                       itemBuilder: (context, index) {
                         final item = calendars[index];
+                        // 일정 작성 모달
                         return CalendarTile(
                           date: item['date'],
                           startTime: item['startTime'],
@@ -140,6 +140,7 @@ class CalendarWidgetState extends State<CalendarScreen> {
           ),
         ]
       ),
+      // 일정 추가 버튼
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
         backgroundColor: const Color(0xFFFFC7C7),

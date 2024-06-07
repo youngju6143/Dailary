@@ -57,7 +57,7 @@ class _EditCalendarModalState extends State<EditCalendarModal> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: const Text('일정 추가하기'),
+        title: const Text('일정 수정하기'),
       ),
       body: GestureDetector(
         onTap: () {
@@ -71,7 +71,7 @@ class _EditCalendarModalState extends State<EditCalendarModal> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  '일정 추가하기',
+                  '일정 수정하기',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

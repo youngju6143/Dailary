@@ -38,6 +38,9 @@ class EditDiaryState extends State<EditDiary> {
   late String content;
   late String imgURL;
 
+  XFile? _pickedImg;
+
+  // 일기 내용 비어있는지 확인
   bool showContentError = false;
 
   late TextEditingController textEditingController;
@@ -58,7 +61,6 @@ class EditDiaryState extends State<EditDiary> {
     textEditingController = TextEditingController(text: content);
   }
 
-  XFile? _pickedImg;
 
   @override
   Widget build(BuildContext context) {
@@ -68,12 +70,12 @@ class EditDiaryState extends State<EditDiary> {
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('일기 작성하기'),
+          title: const Text('일기 수정하기'),
           centerTitle: false,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.of(context).pop(); // 뒤로가기 버튼 클릭 시 현재 화면을 종료하여 이전 화면으로 이동
+              Navigator.of(context).pop();
             },
           ),
           actions: [
@@ -122,7 +124,7 @@ class EditDiaryState extends State<EditDiary> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DateWidget(
+                  DateWidget( // 날짜 선택 위젯
                     selectedDate: selectedDate,
                     onSelectDate: (date) {
                       setState(() {
@@ -130,7 +132,7 @@ class EditDiaryState extends State<EditDiary> {
                       });
                     },
                   ),
-                  EmotionWidget(
+                  EmotionWidget( // 감정 선택 위젯
                     selectedEmotion: selectedEmotion, 
                     onEmotionSelected: (emotion) {
                       setState(() {
@@ -138,7 +140,7 @@ class EditDiaryState extends State<EditDiary> {
                       });
                     },
                   ),
-                  WeatherWidget(
+                  WeatherWidget( // 날씨 선택 위젯
                     selectedWeather: selectedWeather, 
                     onWeatherSelected: (weather) {
                       setState(() {
@@ -146,7 +148,7 @@ class EditDiaryState extends State<EditDiary> {
                       });
                     },
                   ),
-                  PhotoWidget(
+                  PhotoWidget( // 사진 선택 위젝
                     onImageSelected: (pickedImage) {
                       setState(() {
                         _pickedImg = pickedImage;
@@ -161,14 +163,7 @@ class EditDiaryState extends State<EditDiary> {
                     pickedImg: _pickedImg,
                     imgURL: imgURL,
                   ),                  
-                  // Container(
-                  //   child: _pickedImg != null 
-                  //     ? Image.file(File(_pickedImg!.path))
-                  //     : imgURL.isNotEmpty 
-                  //         ? Image.network(imgURL)
-                  //         : Container(),
-                  // ),
-                  ContentWidget(
+                  ContentWidget( // 내용 작성 위젯
                     textEditingController: textEditingController,
                     showContentError: showContentError,
                   ),
